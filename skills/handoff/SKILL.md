@@ -50,7 +50,8 @@ them.
 ## Preflight — all modes
 
 1. `git status`, current branch, remote. `gh auth status` when the host is GitHub.
-2. Confirm which checkout you are in. A worktree is expected in most flows — see
+2. Confirm which checkout you are in. The main checkout is the default and is fine.
+   Only when the plan names a worktree must you be in it — see
    `references/worktree-lifecycle.md`.
 3. Tracker issue id present in the branch or slug? Read its **current** status
    before deciding any transition.

@@ -177,7 +177,10 @@ the exact commands. Fill `companions` with `present` / `absent` per entry.
 
 ## 12 — Worktree defaults
 
-- `enabled: true`.
+- `enabled: false`. **Always false at init.** Worktrees are opt-in: the founder
+  flips it when they actually want parallel tasks, once `worktree.setup` and the
+  repo's local config are known to survive a fresh checkout. Defaulting to true
+  buys friction on every first plan for a feature most repos never need.
 - `root: "../worktrees/<repo-name>"`, repo name from the toplevel basename.
 - `base`: the default branch from recipe 1.
 - `link: []` — **always empty at init.** Only the user adds paths here, knowing

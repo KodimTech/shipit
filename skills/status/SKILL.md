@@ -84,3 +84,7 @@ never pushed.
 
 Say so in one line, and note whether `worktree.enabled` is false in the contract or
 simply nothing is in flight. Those are different situations and the fix differs.
+
+`worktree.enabled: false` is the default and is not a problem — report it as the
+configured mode, not as something to repair. Mention turning it on only if the user
+asks about running tasks in parallel.

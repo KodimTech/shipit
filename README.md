@@ -25,7 +25,7 @@ Then, once per repository:
 ```
 /shipit:init        read the repo, write .sdd/          once per repo
         │
-/shipit:plan        worktree + plan contract             once per task
+/shipit:plan        plan contract in the current checkout once per task
         │
 /shipit:implement   red/green + verified validation
         │
@@ -75,13 +75,21 @@ Three rules make it trustworthy:
 plan. That is why the evidence rules are hard rules and why `unknown[]` is printed
 loudly rather than buried in JSON.
 
-## Parallel worktrees
+## Parallel worktrees — opt-in
 
-`/shipit:plan` creates a worktree per task at `../worktrees/<repo>/<slug>` and writes
-the plan inside it, so several tasks run at once without fighting over one checkout.
-Your current checkout is left untouched.
+**Off by default.** `plan` writes into your current checkout, like every other tool.
+A fresh worktree does not inherit untracked local config — `.env`, credentials,
+build caches — so enabling it before you know what your repo needs to boot from a
+clean checkout buys friction, not parallelism.
 
-Three things make that safe:
+Turn it on in `.sdd/config.json` when you actually want several tasks in flight:
+
+```json
+"worktree": { "enabled": true, "setup": "<the command that makes a clean checkout runnable>" }
+```
+
+Then `/shipit:plan` creates a worktree per task at `../worktrees/<repo>/<slug>` and
+writes the plan inside it. Three things make that safe:
 
 - **Collision detection.** Before finalizing its file list, `plan` reads the `Files`
   table of every active worktree's plan and intersects paths. Overlap is reported with

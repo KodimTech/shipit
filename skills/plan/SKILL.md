@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Creates an isolated worktree so several tasks can run in parallel. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled`. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
 metadata:
   input: request
   output: sdd-plan
@@ -32,8 +32,9 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 - Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md` for the scope gate.
   If that path does not resolve, try `../../references/lean-ladder.md` relative to
   this skill directory.
-- Optional, only if touched: `references/worktree-protocol.md`,
-  `references/discovery-protocol.md`, `references/ambiguity-policy.md`.
+- Optional, only if touched: `references/discovery-protocol.md`,
+  `references/ambiguity-policy.md`, and `references/worktree-protocol.md` **only
+  when `worktree.enabled` is true**. Default is false — do not read it otherwise.
 - Never: every rule file at once, every agent doc, a whole graph report.
 - No `.sdd/` at all → stop and say: run `/shipit:init` first. Do not detect the
   stack inline; that is `init`'s job and doing it here spends the same tokens
@@ -58,19 +59,24 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 - UI touched → the plan includes `Manual QA`.
 - Ambiguity that blocks architecture, security, or data → stop with `Blockers`.
   Everything else → `Assumptions`, with the default already taken.
-- No external side effects. `git worktree add` is local and allowed; commit, push,
-  PR, and tracker writes are not.
+- No external side effects. `git worktree add` is local and allowed when worktrees
+  are enabled; commit, push, PR, and tracker writes are not.
+- Never create a worktree when `worktree.enabled` is false. Plan in the current
+  checkout and say nothing about worktrees.
 
 ## Workflow
 
 1. **Preflight.** Load `.sdd/config.json`. Parse the request: goal, acceptance
    criteria, out-of-scope, layers touched. Derive the slug.
-2. **Worktree.** Follow `references/worktree-protocol.md`. Create or reuse
+2. **Worktree — skip unless opted in.** `worktree.enabled` false (the default), key
+   absent, or not a git repo → plan in the current checkout, skip step 3, do not
+   read the protocol. True → `references/worktree-protocol.md`: create or reuse
    `<worktree.root>/<slug>`, share the graph, run setup. Failure is reported, not
    fatal — fall back to the current checkout.
-3. **Collision check.** Same reference, collision section. Read the `Files` table
-   of every active worktree's plan and intersect paths. Overlap → warn with the
-   worktree and the shared paths before going further.
+3. **Collision check.** Only when other worktrees exist. Same reference, collision
+   section. Read the `Files` table of every active worktree's plan and intersect
+   paths. Overlap → warn with the worktree and the shared paths before going
+   further.
 4. **Discovery.** `references/discovery-protocol.md`. Find one analogue per new
    file. Stop when found.
 5. **Spec contract.** User story, testable acceptance criteria, business rules,
@@ -85,15 +91,16 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
    heading; an empty section is noise.
 9. **Estimate.** One line: S / M / L, and the driver. Uncertainty sizes a plan,
    not line count.
-10. **Write.** `<worktree>/<paths.plans>/<slug>.md` from `assets/plan-template.md`.
+10. **Write.** `<paths.plans>/<slug>.md` from `assets/plan-template.md`, in the
+    current checkout — or inside the worktree when step 2 created one.
 11. **Self-check.** Run `output-contract.md`'s checks as checks. Never emit the
     checklist into the plan. Fix before reporting done.
 
 ## Final report
 
-- Plan path, and the worktree it lives in.
+- Plan path. Name the worktree only if one was used.
 - Whether a tracker issue id was detected, and the slug produced.
-- Collisions found with in-flight worktrees.
+- Collisions found with in-flight worktrees, when there were any to check.
 - Blockers, or assumptions taken.
 - Estimate.
 - Next: `/shipit:handoff` in `plan` mode to deliver it, or `/shipit:implement` to
