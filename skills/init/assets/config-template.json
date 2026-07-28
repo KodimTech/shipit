@@ -57,7 +57,7 @@
     "caveman": "absent"
   },
   "worktree": {
-    "enabled": true,
+    "enabled": false,
     "root": "../worktrees/<repo.name>",
     "base": "main",
     "link": [],

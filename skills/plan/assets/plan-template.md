@@ -6,7 +6,8 @@ Source: <tracker url | user request> · <YYYY-MM-DD>
 
 Path: `<worktree path>` · Branch: `<branch>` · Base: `<base>`
 
-<Delete this section only when no worktree was used, and say why in the report.>
+<Delete this whole section when no worktree was used — the default. Keep it only
+when `worktree.enabled` is true and one was created or reused.>
 
 ## Goal
 

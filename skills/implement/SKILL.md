@@ -43,8 +43,10 @@ and verified with commands that are known to run in this repo.
 
 ## Workflow
 
-1. **Preflight.** Read the plan. Confirm you are in the worktree the plan names —
-   wrong location is the most common way this run edits the wrong branch. Check
+1. **Preflight.** Read the plan. If it has a `Worktree` section, confirm you are in
+   the worktree it names — wrong location is the most common way this run edits the
+   wrong branch. No such section → the current checkout is correct; do not create a
+   worktree and do not go looking for one. Check
    `git status` and detect changes you did not make. Inspect only the files the
    plan names. Search for more only when the plan lacks detail; a graph query
    before `rg` when `graph` is set and its output is present.

@@ -1,5 +1,8 @@
 # Worktree Protocol
 
+**Only read this when `worktree.enabled` is true. It is `false` by default** — the
+usual path is to plan in the current checkout and never open this file.
+
 One worktree per task, so several tasks run in parallel without fighting over one
 checkout. The plan is written **inside** the worktree, so `implement` and `handoff`
 operate there too.

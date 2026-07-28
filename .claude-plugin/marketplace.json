@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "shipit",
-      "description": "Plan, implement, and deliver work under a contract generated from your own repo. Parallel worktrees, evidence-backed conventions, tracker-agnostic handoff.",
+      "description": "Plan, implement, and deliver work under a contract generated from your own repo. Opt-in parallel worktrees, evidence-backed conventions, tracker-agnostic handoff.",
       "source": "./",
       "category": "development",
       "homepage": "https://github.com/KodimTech/shipit"

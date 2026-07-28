@@ -46,7 +46,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `graph` | object \| null | `{tool, out, query, update}`. Null unless CLI **and** graph exist |
 | `markers.debt` | string | Default `ponytail:` |
 | `companions.*` | `present` \| `absent` | `ponytail`, `graphify_cli`, `graphify_graph`, `caveman` |
-| `worktree.enabled` | boolean | |
+| `worktree.enabled` | boolean | **Default `false`.** Opt-in: `plan` works in the current checkout unless the user turns this on |
 | `worktree.root` | string | Default `../worktrees/<repo.name>` |
 | `worktree.base` | string | Branch new worktrees fork from |
 | `worktree.link[]` | string[] | **Empty at init.** Opt-in only. See warning below |

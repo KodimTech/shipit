@@ -38,7 +38,8 @@ the deltas.
 `Goal`, `Acceptance criteria`, `Files`, `Tests`, `Estimate`.
 
 `Worktree` is required whenever a worktree was created or reused — the implementer
-needs to know where to work.
+needs to know where to work. Worktrees are opt-in, so the usual case is no section
+at all; an empty or placeholder `Worktree` block is a contract violation.
 
 Everything else in the template (`Out of scope`, `Decisions`, `Notes`,
 `Docs impact`, `Manual QA`, `Assumptions`) is **conditional: include only when it
