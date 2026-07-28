@@ -1,0 +1,103 @@
+---
+name: plan
+description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Creates an isolated worktree so several tasks can run in parallel. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
+metadata:
+  input: request
+  output: sdd-plan
+  writes_product_code: false
+---
+
+# shipit plan
+
+Turn a request into a plan the implementer can execute without re-deciding
+anything. The plan is a contract, not a tutorial.
+
+Write as a mid-senior dev handing work to a peer who already knows this repo. The
+implementer loads `.sdd/` itself. The plan carries only what it cannot derive from
+the repo: the decisions, the exact files, the analogues, the guess-prone
+specifics. Everything else is noise that costs tokens on every read.
+
+This skill ends when the plan file is written. Branch, commit, PR, tracker —
+`handoff`.
+
+## Context budget
+
+Read narrow. Bulk-loading is the single biggest token sink in this flow.
+
+- Required: the request, `.sdd/config.json`, and `.sdd/conventions.md`.
+- Required: the `.sdd/rules/<layer>.md` for each layer touched, and the
+  `.sdd/rules/tests/<kind>.md` for each test planned. Only those.
+- Required: `references/output-contract.md`. It owns sections, size budget, and
+  prohibited output; this file does not restate it.
+- Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md` for the scope gate.
+  If that path does not resolve, try `../../references/lean-ladder.md` relative to
+  this skill directory.
+- Optional, only if touched: `references/worktree-protocol.md`,
+  `references/discovery-protocol.md`, `references/ambiguity-policy.md`.
+- Never: every rule file at once, every agent doc, a whole graph report.
+- No `.sdd/` at all → stop and say: run `/shipit:init` first. Do not detect the
+  stack inline; that is `init`'s job and doing it here spends the same tokens
+  every single run.
+
+## Hard rules
+
+- No product code. No full implementation snippets.
+- Nothing not required by the acceptance criteria: no refactor, no dependency, no
+  feature flag, no background job, no webhook, no abstraction.
+- Every planned test names its applicable `.sdd/rules/tests/*.md`, or the layer
+  rule when no test rule exists.
+- Every new file cites an analogue with `path:line`, or documents why none exists.
+- If `.sdd/*` or an agent doc already states it, the plan references it and moves
+  on. Restating is how a 40-line plan becomes 300.
+- **Verify before asserting.** Confirm an unfamiliar path, script, or command
+  exists before naming it. `.sdd/config.json` records verified commands — use
+  those, and never invent a sibling.
+- No verification commands and no red/green sequencing in the plan. `implement`
+  owns both.
+- Tracker issue id present → preserve it in the slug: `<issue-id>-<slug>`.
+- UI touched → the plan includes `Manual QA`.
+- Ambiguity that blocks architecture, security, or data → stop with `Blockers`.
+  Everything else → `Assumptions`, with the default already taken.
+- No external side effects. `git worktree add` is local and allowed; commit, push,
+  PR, and tracker writes are not.
+
+## Workflow
+
+1. **Preflight.** Load `.sdd/config.json`. Parse the request: goal, acceptance
+   criteria, out-of-scope, layers touched. Derive the slug.
+2. **Worktree.** Follow `references/worktree-protocol.md`. Create or reuse
+   `<worktree.root>/<slug>`, share the graph, run setup. Failure is reported, not
+   fatal — fall back to the current checkout.
+3. **Collision check.** Same reference, collision section. Read the `Files` table
+   of every active worktree's plan and intersect paths. Overlap → warn with the
+   worktree and the shared paths before going further.
+4. **Discovery.** `references/discovery-protocol.md`. Find one analogue per new
+   file. Stop when found.
+5. **Spec contract.** User story, testable acceptance criteria, business rules,
+   failure conditions, authorization and scoping rules, UI states when frontend.
+6. **Scope gate.** Run the ladder over the `Files` table. Every `Create` row
+   passes rungs 1–4 or it does not ship. What the gate rejects goes to
+   `Out of scope` as `skipped: <X>, add when <Y>`.
+7. **Ambiguity.** `references/ambiguity-policy.md`. Blocking → stop. Otherwise →
+   `Assumptions` with the default taken.
+8. **Gates.** UI touched → `Manual QA` filled and UI states in `Notes`. Docs made
+   stale → `Docs impact` with exact paths and sections. Neither → delete the
+   heading; an empty section is noise.
+9. **Estimate.** One line: S / M / L, and the driver. Uncertainty sizes a plan,
+   not line count.
+10. **Write.** `<worktree>/<paths.plans>/<slug>.md` from `assets/plan-template.md`.
+11. **Self-check.** Run `output-contract.md`'s checks as checks. Never emit the
+    checklist into the plan. Fix before reporting done.
+
+## Final report
+
+- Plan path, and the worktree it lives in.
+- Whether a tracker issue id was detected, and the slug produced.
+- Collisions found with in-flight worktrees.
+- Blockers, or assumptions taken.
+- Estimate.
+- Next: `/shipit:handoff` in `plan` mode to deliver it, or `/shipit:implement` to
+  execute it locally.
+
+Do not claim implementation done. Do not claim anything was delivered. This skill
+ends at the plan file.

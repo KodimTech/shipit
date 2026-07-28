@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "shipit",
+  "description": "Spec-driven development for any repo. Detects your conventions instead of assuming them.",
+  "owner": {
+    "name": "Kodim Tech",
+    "url": "https://github.com/KodimTech"
+  },
+  "plugins": [
+    {
+      "name": "shipit",
+      "description": "Plan, implement, and deliver work under a contract generated from your own repo. Parallel worktrees, evidence-backed conventions, tracker-agnostic handoff.",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/KodimTech/shipit"
+    }
+  ]
+}

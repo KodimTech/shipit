@@ -1,0 +1,72 @@
+{
+  "shipit_version": "0.1.0",
+  "generated_at": "YYYY-MM-DD",
+  "repo": {
+    "name": "",
+    "default_branch": "main",
+    "remote": "origin"
+  },
+  "docs": {
+    "agent_docs": [],
+    "owned_by_shipit": [".sdd/"]
+  },
+  "stack": {
+    "languages": [],
+    "frameworks": [],
+    "package_manager": null
+  },
+  "commands": {
+    "setup": null,
+    "test_all": null,
+    "test_one": null,
+    "lint": null,
+    "lint_fix": null,
+    "typecheck": null,
+    "security": null,
+    "coverage_gate": null,
+    "build": null
+  },
+  "commands_verified": {},
+  "paths": {
+    "plans": ".sdd/plans",
+    "rules": ".sdd/rules",
+    "src": [],
+    "tests": []
+  },
+  "tests": {
+    "framework": null,
+    "location": "unknown",
+    "naming": null,
+    "kinds": [],
+    "coverage_gates_merge": false
+  },
+  "layers": [],
+  "tracker": {
+    "adapter": "none",
+    "issue_pattern": null,
+    "branch_from_tracker": false
+  },
+  "graph": null,
+  "markers": {
+    "debt": "ponytail:"
+  },
+  "companions": {
+    "ponytail": "absent",
+    "graphify_cli": "absent",
+    "graphify_graph": "absent",
+    "caveman": "absent"
+  },
+  "worktree": {
+    "enabled": true,
+    "root": "../worktrees/<repo.name>",
+    "base": "main",
+    "link": [],
+    "share_graph": false,
+    "setup": null
+  },
+  "ci": {
+    "config": null,
+    "required_jobs": []
+  },
+  "unknown": []
+}

@@ -1,0 +1,33 @@
+shipit
+Copyright (c) 2026 Kodim Tech
+
+This product includes work derived from ponytail.
+
+  ponytail — https://github.com/DietrichGebert/ponytail
+  Version 4.7.0
+  Copyright (c) 2026 DietrichGebert
+  Licensed under the MIT License
+
+What was derived, and where it lives:
+
+  references/lean-ladder.md
+    - The six-rung laziness ladder (does it need to exist → stdlib → native
+      platform feature → already-installed dependency → one line → minimum
+      code), adapted from ponytail/skills/ponytail/SKILL.md.
+    - The five review tags (delete / stdlib / native / yagni / shrink),
+      adapted from ponytail/skills/ponytail-review/SKILL.md.
+    - The debt marker convention (`ponytail: <ceiling>, <upgrade path>`),
+      adapted from ponytail/skills/ponytail-debt/SKILL.md.
+
+What was deliberately NOT taken:
+
+  The persistent-mode machinery, intensity levels (lite/full/ultra), session
+  hooks, statusline scripts, benchmarks, and multi-host distribution. shipit
+  skills are one-shot workflows, not a session-wide behavioral mode.
+
+  The marker prefix stays `ponytail:` by default so that the upstream
+  `/ponytail-debt` skill can harvest markers shipit leaves behind. It is
+  configurable via `markers.debt` in `.sdd/config.json`.
+
+Two rules in lean-ladder.md deliberately override ponytail inside the shipit
+flow — see that file's "Where this overrides ponytail" section.
