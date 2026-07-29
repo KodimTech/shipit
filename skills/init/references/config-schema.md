@@ -43,7 +43,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `tracker.adapter` | `linear` \| `github-issues` \| `jira` \| `none` | Ambiguous → `none` |
 | `tracker.issue_pattern` | string \| null | Regex, for slug and branch parsing |
 | `tracker.branch_from_tracker` | boolean | Adapter can supply the branch name |
-| `graph` | object \| null | `{tool, out, query, update}`. Null unless CLI **and** graph exist |
+| `graph` | object \| null | `{tool, out, query, path, explain, update}`. Null unless CLI **and** graph exist |
 | `markers.debt` | string | Default `ponytail:` |
 | `companions.*` | `present` \| `absent` | `ponytail`, `graphify_cli`, `graphify_graph`, `caveman` |
 | `worktree.enabled` | boolean | **Default `false`.** Opt-in: `plan` works in the current checkout unless the user turns this on |
@@ -65,6 +65,8 @@ Substituted at call time. Never bake the value in.
 | `{path}` | A test file path | `commands.test_one` |
 | `{base}` | `repo.default_branch` | `commands.coverage_gate`, any diff command |
 | `{q}` | A natural-language question | `graph.query` |
+| `{node}` | One file, symbol, or concept name | `graph.explain` |
+| `{a}`, `{b}` | Two node names, in order | `graph.path` |
 
 A `test_one` without `{path}` is malformed: `implement` cannot target a single
 test, and the whole red-green loop degrades to running the full suite.

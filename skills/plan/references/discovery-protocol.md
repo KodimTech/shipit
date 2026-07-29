@@ -9,8 +9,13 @@ spends ten times the tokens it needs.
 (inside a worktree it may be a symlink — check, do not assume):
 
 - `<graph.query>` with the domain question → a scoped subgraph.
-- The graph's `explain` for a single file or concept.
-- The graph's `path` between two names for how they relate.
+- `<graph.explain>` for a single file or concept.
+- `<graph.path>` between two names for how they relate.
+
+Run the command strings from `config.json` verbatim, substituting `{q}`, `{node}`,
+`{a}`, `{b}`. Do not invent flags and do not load the graph tool's own skill or
+docs — these three commands are the whole interface `plan` needs. A key absent
+from `graph` means that command is unavailable, not that you should guess it.
 
 Use the result to shortlist candidates, then confirm each with a real read in
 step 4. **Never cite a graph node as an analogue without opening the file** — the

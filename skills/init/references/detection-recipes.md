@@ -136,8 +136,22 @@ command -v graphify
 test -f graphify-out/graph.json
 ```
 
-CLI + graph → fill `graph` with `{ "tool": "graphify", "out": "graphify-out",
-"query": "graphify query \"{q}\"", "update": "graphify update ." }`.
+CLI + graph → fill `graph` with
+
+```json
+{
+  "tool": "graphify",
+  "out": "graphify-out",
+  "query": "graphify query \"{q}\"",
+  "path": "graphify path \"{a}\" \"{b}\"",
+  "explain": "graphify explain \"{node}\"",
+  "update": "graphify update ."
+}
+```
+
+Read-only commands only. `graphify` has flags beyond these (`--dfs`, `--budget`,
+rebuild modes); they do not go in the config — `plan` needs the three read
+commands, not the tool's whole surface.
 CLI only → `graph: null`, and note in the report that `graphify .` would build one
 (state the cost; do not run it).
 Neither → `graph: null`, and no skill mentions a graph again.
