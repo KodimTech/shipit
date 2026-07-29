@@ -88,6 +88,9 @@ Turn it on in `.sdd/config.json` when you actually want several tasks in flight:
 "worktree": { "enabled": true, "setup": "<the command that makes a clean checkout runnable>" }
 ```
 
+Per-invocation override, no config edit needed — a flag in the request wins either
+way: `/shipit:plan --worktree <request>` forces one, `--no-worktree` forces none.
+
 Then `/shipit:plan` creates a worktree per task at `../worktrees/<repo>/<slug>` and
 writes the plan inside it. Three things make that safe:
 

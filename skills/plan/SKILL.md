@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled`. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled` or a `--worktree` flag. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
 metadata:
   input: request
   output: sdd-plan
@@ -61,16 +61,18 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
   Everything else → `Assumptions`, with the default already taken.
 - No external side effects. `git worktree add` is local and allowed when worktrees
   are enabled; commit, push, PR, and tracker writes are not.
-- Never create a worktree when `worktree.enabled` is false. Plan in the current
-  checkout and say nothing about worktrees.
+- Never create a worktree unless asked: `worktree.enabled` true, or `--worktree` in
+  the request. Otherwise plan in the current checkout and say nothing about
+  worktrees. `--no-worktree` overrides `enabled: true`.
 
 ## Workflow
 
 1. **Preflight.** Load `.sdd/config.json`. Parse the request: goal, acceptance
    criteria, out-of-scope, layers touched. Derive the slug.
-2. **Worktree — skip unless opted in.** `worktree.enabled` false (the default), key
-   absent, or not a git repo → plan in the current checkout, skip step 3, do not
-   read the protocol. True → `references/worktree-protocol.md`: create or reuse
+2. **Worktree — skip unless opted in.** A `--worktree` / `--no-worktree` flag in the
+   request wins over the config; otherwise read `worktree.enabled`. Off (the
+   default), key absent, or not a git repo → plan in the current checkout, skip step
+   3, do not read the protocol. On → `references/worktree-protocol.md`: create or reuse
    `<worktree.root>/<slug>`, share the graph, run setup. Failure is reported, not
    fatal — fall back to the current checkout.
 3. **Collision check.** Only when other worktrees exist. Same reference, collision
