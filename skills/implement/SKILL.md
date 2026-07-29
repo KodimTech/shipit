@@ -19,8 +19,8 @@ and verified with commands that are known to run in this repo.
   `.sdd/rules/tests/<kind>.md` for each test it plans. Only those.
 - Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md`. Fallback:
   `../../references/lean-ladder.md` from this skill directory.
-- Optional, only if touched: `references/validation-standards.md`,
-  `references/security-standards.md`.
+- Required: `references/validation-standards.md`. Every run validates.
+- Optional, only if touched: `references/security-standards.md`.
 - Never bulk-load every rule file or every agent doc. Resolve symlinked docs once.
 - If a rule was skipped, do not claim compliance with it.
 
