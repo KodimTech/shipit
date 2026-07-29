@@ -32,9 +32,11 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 - Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md` for the scope gate.
   If that path does not resolve, try `../../references/lean-ladder.md` relative to
   this skill directory.
-- Optional, only if touched: `references/discovery-protocol.md`,
-  `references/ambiguity-policy.md`, and `references/worktree-protocol.md` **only
-  when `worktree.enabled` is true**. Default is false — do not read it otherwise.
+- Required: `references/discovery-protocol.md`. Every run does discovery, and it
+  owns the graph-before-`rg` order.
+- Optional, only if touched: `references/ambiguity-policy.md`, and
+  `references/worktree-protocol.md` **only when `worktree.enabled` is true**.
+  Default is false — do not read it otherwise.
 - Never: every rule file at once, every agent doc, a whole graph report.
 - No `.sdd/` at all → stop and say: run `/shipit:init` first. Do not detect the
   stack inline; that is `init`'s job and doing it here spends the same tokens
@@ -79,7 +81,9 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
    section. Read the `Files` table of every active worktree's plan and intersect
    paths. Overlap → warn with the worktree and the shared paths before going
    further.
-4. **Discovery.** `references/discovery-protocol.md`. Find one analogue per new
+4. **Discovery.** `references/discovery-protocol.md`. `graph` non-null in
+   `config.json` → run its `query` / `explain` / `path` strings verbatim *before*
+   any `rg`; `rg` is the fallback, not the default. Find one analogue per new
    file. Stop when found.
 5. **Spec contract.** User story, testable acceptance criteria, business rules,
    failure conditions, authorization and scoping rules, UI states when frontend.
