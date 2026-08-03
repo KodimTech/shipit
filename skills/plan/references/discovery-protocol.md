@@ -21,8 +21,27 @@ Use the result to shortlist candidates, then confirm each with a real read in
 step 4. **Never cite a graph node as an analogue without opening the file** — the
 graph says two things are related, not that one is the shape to copy.
 
+`graph: null` but `graphify-out/graph.json` exists on disk → the config is stale,
+not the graph missing. graphify is the supported tool; use its three read
+commands for this run — `graphify query "{q}"`, `graphify explain "{node}"`,
+`graphify path "{a}" "{b}"` — and tell the user to re-run `/shipit:init` so the
+config stops lying. Never build a graph here: `graphify .` costs minutes and
+extraction tokens and is `init --with-graph`'s call, not `plan`'s.
+
 Nothing useful, or no graph → step 1, unchanged. Do not bulk-read a graph report;
 that is for architecture review, not per-layer analogue search.
+
+No graph output in the project at all → discovery is `rg`-only and weaker at
+analogues and blast radius. Say it **once**, in the final report, never per
+search:
+
+> No graphify graph in this project — discovery was `rg`-only, so analogues and
+> blast radius may be incomplete. To build one once, in the main checkout:
+> `graphify .` (minutes + extraction tokens).
+
+If `command -v graphify` also fails, name that instead: the CLI is missing, so the
+fix is `/shipit:doctor --fix` before `graphify .`. Warn, then keep planning — a
+missing graph degrades a plan, it does not block one.
 
 ## 1 — Classify
 
