@@ -23,13 +23,19 @@ repo is private, so clone it with credentials you already have — `gh auth logi
 or an SSH key — then run the installer:
 
 ```sh
-gh repo clone KodimTech/shipit ~/.config/opencode/plugins/shipit
-~/.config/opencode/plugins/shipit/scripts/install-opencode.sh
+ROOT=~/.config/opencode/plugins/shipit
+[ -e "$ROOT" ] || gh repo clone KodimTech/shipit "$ROOT"
+"$ROOT"/scripts/install-opencode.sh
 ```
 
 The installer links the seven commands and verifies OpenCode resolves them.
-Re-run it any time to update — it pulls first. It never uses sudo, never installs
-a package, and never edits `opencode.json`.
+Re-run those three lines any time to update — the guard skips the clone, and the
+installer pulls. It never uses sudo, never installs a package, and never edits
+`opencode.json`.
+
+Already have a checkout somewhere else? Skip the clone and run its
+`scripts/install-opencode.sh` directly — the installer uses whatever checkout it
+lives in.
 
 Commands are flat here: `/shipit-plan`, not `/shipit:plan`. Same skills, same
 `.sdd/` contract, so a repo initialized in one runtime works in the other.
