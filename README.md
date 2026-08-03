@@ -18,22 +18,18 @@ other skill works from that. Nothing in this plugin knows what framework you use
 
 ### OpenCode
 
-The skills are plain markdown, so OpenCode runs them as custom commands:
+The skills are plain markdown, so OpenCode runs them as custom commands. This
+repo is private, so clone it with credentials you already have — `gh auth login`
+or an SSH key — then run the installer:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/KodimTech/shipit/main/scripts/install-opencode.sh | sh
-```
-
-It clones to `~/.config/opencode/plugins/shipit`, links the seven commands, and
-verifies OpenCode resolves them. Re-run it to update. It never uses sudo, never
-installs a package, and never edits `opencode.json`.
-
-Prefer to read it first — pipe-to-shell deserves that:
-
-```sh
-git clone https://github.com/KodimTech/shipit ~/.config/opencode/plugins/shipit
+gh repo clone KodimTech/shipit ~/.config/opencode/plugins/shipit
 ~/.config/opencode/plugins/shipit/scripts/install-opencode.sh
 ```
+
+The installer links the seven commands and verifies OpenCode resolves them.
+Re-run it any time to update — it pulls first. It never uses sudo, never installs
+a package, and never edits `opencode.json`.
 
 Commands are flat here: `/shipit-plan`, not `/shipit:plan`. Same skills, same
 `.sdd/` contract, so a repo initialized in one runtime works in the other.
