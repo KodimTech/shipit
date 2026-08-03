@@ -33,7 +33,8 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
   If that path does not resolve, try `../../references/lean-ladder.md` relative to
   this skill directory.
 - Required: `references/discovery-protocol.md`. Every run does discovery, and it
-  owns the graph-before-`rg` order.
+  owns the graph-before-`rg` order (graphify is the supported graph tool; its
+  read commands come from `config.json`, never from its own skill or docs).
 - Optional, only if touched: `references/ambiguity-policy.md`, and
   `references/worktree-protocol.md` **only when `worktree.enabled` is true**.
   Default is false — do not read it otherwise.
@@ -83,7 +84,8 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
    further.
 4. **Discovery.** `references/discovery-protocol.md`. `graph` non-null in
    `config.json` → run its `query` / `explain` / `path` strings verbatim *before*
-   any `rg`; `rg` is the fallback, not the default. Find one analogue per new
+   any `rg`; `rg` is the fallback, not the default. `graph: null` but a graphify
+   graph on disk → stale config, protocol § 0 covers it. Find one analogue per new
    file. Stop when found.
 5. **Spec contract.** User story, testable acceptance criteria, business rules,
    failure conditions, authorization and scoping rules, UI states when frontend.
@@ -105,6 +107,8 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 ## Final report
 
 - Plan path. Name the worktree only if one was used.
+- Discovery source: graph, or the rg-only warning from `discovery-protocol.md` § 0
+  when no graphify output is in the project. One line, never omitted.
 - Whether a tracker issue id was detected, and the slug produced.
 - Collisions found with in-flight worktrees, when there were any to check.
 - Blockers, or assumptions taken.
