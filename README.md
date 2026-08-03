@@ -9,12 +9,32 @@ other skill works from that. Nothing in this plugin knows what framework you use
 
 ## Install
 
+### Claude Code
+
 ```
 /plugin marketplace add KodimTech/shipit
 /plugin install shipit@shipit
 ```
 
-Then, once per repository:
+### OpenCode
+
+The skills are plain markdown, so OpenCode runs them as custom commands. Clone
+once, then link the seven commands:
+
+```sh
+git clone https://github.com/KodimTech/shipit ~/.config/opencode/plugins/shipit
+cd ~/.config/opencode/commands
+for f in ../plugins/shipit/.opencode/command/*.md; do ln -sfn "$f" "$(basename "$f")"; done
+```
+
+Verify with `opencode debug config` — the `command` map should list
+`shipit-plan` and its six siblings.
+
+Cloned somewhere else? Export `SHIPIT_ROOT=/your/path`. Commands are flat here:
+`/shipit-plan`, not `/shipit:plan`. Same skills, same `.sdd/` contract, so a repo
+initialized in one runtime works in the other.
+
+### Then, once per repository
 
 ```
 /shipit:init
