@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # shipit installer for OpenCode.
 #
-# Fresh machine, one line:
-#   curl -fsSL https://raw.githubusercontent.com/KodimTech/shipit/main/scripts/install-opencode.sh | sh
+# The repo is private, so start by cloning it with credentials you already have:
+#   gh repo clone KodimTech/shipit ~/.config/opencode/plugins/shipit
+#   ~/.config/opencode/plugins/shipit/scripts/install-opencode.sh
 #
-# Already cloned:
+# Already cloned anywhere:
 #   ./scripts/install-opencode.sh
 #
 # What it does: clone or update the repo, then symlink the seven commands into
@@ -39,7 +40,10 @@ elif [ -d "$ROOT/.git" ]; then
   ok "updated $ROOT"
 else
   mkdir -p "$(dirname "$ROOT")" || die "cannot create $(dirname "$ROOT")"
-  git clone --quiet --depth 1 "$REPO" "$ROOT" || die "clone failed"
+  # Private repo: this only works with git credentials already configured.
+  git clone --quiet --depth 1 "$REPO" "$ROOT" ||
+    die "clone failed. shipit is a private repo — run \`gh auth login\` (or set up
+        an SSH key), then: gh repo clone KodimTech/shipit $ROOT"
   ok "cloned into $ROOT"
 fi
 
