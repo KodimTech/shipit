@@ -9,12 +9,40 @@ other skill works from that. Nothing in this plugin knows what framework you use
 
 ## Install
 
+### Claude Code
+
 ```
 /plugin marketplace add KodimTech/shipit
 /plugin install shipit@shipit
 ```
 
-Then, once per repository:
+### OpenCode
+
+The skills are plain markdown, so OpenCode runs them as custom commands:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/KodimTech/shipit/main/scripts/install-opencode.sh | sh
+```
+
+It clones to `~/.config/opencode/plugins/shipit`, links the seven commands, and
+verifies OpenCode resolves them. Re-run it to update. It never uses sudo, never
+installs a package, and never edits `opencode.json`.
+
+Prefer to read it first — pipe-to-shell deserves that:
+
+```sh
+git clone https://github.com/KodimTech/shipit ~/.config/opencode/plugins/shipit
+~/.config/opencode/plugins/shipit/scripts/install-opencode.sh
+```
+
+Commands are flat here: `/shipit-plan`, not `/shipit:plan`. Same skills, same
+`.sdd/` contract, so a repo initialized in one runtime works in the other.
+
+Installing somewhere other than the default? Set `SHIPIT_ROOT` before running,
+and keep it exported — the commands read it to find the skills. Uninstall:
+`rm ~/.config/opencode/commands/shipit-*.md`.
+
+### Then, once per repository
 
 ```
 /shipit:init
