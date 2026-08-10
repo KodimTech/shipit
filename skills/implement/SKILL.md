@@ -17,8 +17,7 @@ and verified with commands that are known to run in this repo.
 - Required: the full plan, `.sdd/config.json`, `.sdd/conventions.md`.
 - Required: the `.sdd/rules/<layer>.md` for each layer the plan touches, and the
   `.sdd/rules/tests/<kind>.md` for each test it plans. Only those.
-- Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md`. Fallback:
-  `../../references/lean-ladder.md` from this skill directory.
+- Required: `../../references/lean-ladder.md`, relative to this skill directory.
 - Required: `references/validation-standards.md`. Every run validates.
 - Optional, only if touched: `references/security-standards.md`.
 - Never bulk-load every rule file or every agent doc. Resolve symlinked docs once.

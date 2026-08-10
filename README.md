@@ -16,15 +16,28 @@ other skill works from that. Nothing in this plugin knows what framework you use
 /plugin install shipit@shipit
 ```
 
+### Codex
+
+```
+codex plugin marketplace add KodimTech/shipit
+codex plugin add shipit@shipit
+```
+
+Start a new session and the seven skills are available — Codex loads them by
+their descriptions, so ask for the step ("plan this ticket with shipit") instead
+of typing a slash command. Same `skills/` directory as Claude Code and the same
+`.sdd/` contract, so a repo initialized in one runtime works in the others.
+
+Update with `codex plugin marketplace upgrade shipit`; uninstall with
+`codex plugin remove shipit@shipit`.
+
 ### OpenCode
 
-The skills are plain markdown, so OpenCode runs them as custom commands. This
-repo is private, so clone it with credentials you already have — `gh auth login`
-or an SSH key — then run the installer:
+The skills are plain markdown, so OpenCode runs them as custom commands:
 
 ```sh
 ROOT=~/.config/opencode/plugins/shipit
-[ -e "$ROOT" ] || gh repo clone KodimTech/shipit "$ROOT"
+[ -e "$ROOT" ] || git clone https://github.com/KodimTech/shipit "$ROOT"
 "$ROOT"/scripts/install-opencode.sh
 ```
 
@@ -38,7 +51,7 @@ Already have a checkout somewhere else? Skip the clone and run its
 lives in.
 
 Commands are flat here: `/shipit-plan`, not `/shipit:plan`. Same skills, same
-`.sdd/` contract, so a repo initialized in one runtime works in the other.
+`.sdd/` contract, so a repo initialized in one runtime works in the others.
 
 Installing somewhere other than the default? Set `SHIPIT_ROOT` before running,
 and keep it exported — the commands read it to find the skills. Uninstall:

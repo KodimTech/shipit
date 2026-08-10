@@ -1,0 +1,19 @@
+{
+  "name": "shipit",
+  "interface": {
+    "displayName": "shipit"
+  },
+  "plugins": [
+    {
+      "name": "shipit",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
