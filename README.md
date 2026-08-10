@@ -120,6 +120,28 @@ Three rules make it trustworthy:
 plan. That is why the evidence rules are hard rules and why `unknown[]` is printed
 loudly rather than buried in JSON.
 
+### The pointer that makes it read
+
+No agent auto-loads a directory — not `.sdd/`, not any other name. `AGENTS.md` and
+`CLAUDE.md` are the files that do get loaded, so `init` writes a short pointer into
+them, between `<!-- shipit:contract -->` markers:
+
+```md
+<!-- shipit:contract -->
+## Repo contract (shipit)
+- `.sdd/stack.md` — stack facts, each with evidence
+- ...
+<!-- /shipit:contract -->
+```
+
+`AGENTS.md` missing is created; present is appended once. `CLAUDE.md` missing becomes
+a symlink to `AGENTS.md`, so the two never drift. Refresh replaces the block in place
+— everything outside the markers is yours and is never touched.
+
+That is what makes the contract portable across runtimes. Claude Code, Codex,
+OpenCode, Cursor and anything else reading `AGENTS.md` find `.sdd/` the same way,
+without shipit installed.
+
 ## Parallel worktrees — opt-in
 
 **Off by default.** `plan` writes into your current checkout, like every other tool.

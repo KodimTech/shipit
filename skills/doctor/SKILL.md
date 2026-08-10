@@ -26,8 +26,8 @@ lose rather than implying breakage.
 - A missing optional tool is reported as `missing`, never as an error, and never with
   language implying shipit is broken.
 - `ponytail` present is reported as something to **turn off**, not as a success.
-- Do not write to `.sdd/config.json`. `init` owns the `companions` block; this skill
-  only reads and reports.
+- Do not write to `.sdd/config.json`, `AGENTS.md`, or `CLAUDE.md`. `init` owns the
+  `companions` block and the contract pointer; this skill only reads and reports.
 
 ## Workflow
 
@@ -35,7 +35,8 @@ lose rather than implying breakage.
    It is versioned and auditable; do not re-implement its checks inline.
 2. Add the repo-side checks the script cannot make: is `.sdd/` present, does
    `config.json` parse, is `unknown[]` non-empty, does `commands.test_one` carry
-   `{path}`.
+   `{path}`, and does a `<!-- shipit:contract -->` block exist in `AGENTS.md` and in
+   `CLAUDE.md` (a symlink between the two counts as one hit, not a gap).
 3. Print the report below.
 4. `--fix` → show what will run, ask once, then invoke the script with `--yes`.
    Re-run step 1 afterwards and print the new state.
@@ -56,6 +57,7 @@ contract
         .sdd/               ok       generated 2026-07-28
         unknown[]           2 keys   typecheck, security
         test_one            ok       carries {path}
+        AGENTS.md pointer   ok       CLAUDE.md → AGENTS.md
 
 1 optional gap. shipit works. discovery uses rg until a graph exists.
 ```
@@ -74,6 +76,7 @@ reading this should know whether they can proceed, in one line.
 | graphify graph | Same as above — having the CLI without a graph changes nothing. |
 | caveman | Chat prose and reports stay long. Note that shipit exempts non-developer QA steps and PR bodies from compression either way. |
 | `.sdd/` absent | `plan` and `implement` refuse to run. Fix: `/shipit:init`. |
+| pointer absent | shipit skills still read `.sdd/` by path, but every other agent working in this repo ignores it and codes to its own priors. Fix: `/shipit:init` (refresh). |
 | `unknown[]` non-empty | Those verification steps do not exist. Named in every implement report. |
 | `ponytail` **present** | Its persistent mode contradicts spec-driven tests and truncates reports. Fix: `stop ponytail`. |
 

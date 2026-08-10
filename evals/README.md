@@ -22,8 +22,8 @@ plugin disabled, so the number reported is a delta, not an absolute.
 
 | Case | Guards against |
 | --- | --- |
-| `init-ruby` | Writing a command that does not exist in the repo |
-| `init-js` | Leaking one ecosystem's conventions into another |
+| `init-ruby` | Writing a command that does not exist in the repo; clobbering an existing `CLAUDE.md` with the contract pointer |
+| `init-js` | Leaking one ecosystem's conventions into another; writing a contract nothing points at |
 | `plan-collision` | Two parallel worktrees silently planning the same files |
 | `doctor-missing` | Reporting an optional tool as a failure, or installing without consent |
 

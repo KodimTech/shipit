@@ -1,6 +1,6 @@
 ---
 name: init
-description: Use to bootstrap or refresh the `.sdd/` contract for a repo — detects stack, verified commands, layers, test patterns, tracker, and companions from evidence. Run once per repo before `plan` or `implement`. Do not use to plan or write product code.
+description: Use to bootstrap or refresh the `.sdd/` contract for a repo — detects stack, verified commands, layers, test patterns, tracker, and companions from evidence, then points `AGENTS.md` at it so any agent loads it. Run once per repo before `plan` or `implement`. Do not use to plan or write product code.
 metadata:
   writes_product_code: false
   output: sdd-contract
@@ -23,6 +23,45 @@ Produces, at the repo root:
 
 `.sdd/` is committed. It is a team contract, not a local cache.
 
+## Discovery pointer
+
+No agent auto-loads a directory. `AGENTS.md` and `CLAUDE.md` are the files that do
+get loaded, so `init` writes a pointer into them. Without it `.sdd/` is a contract
+nobody reads unless a shipit skill opens it by path — which is exactly the failure
+mode where an agent rewrites the repo in its own conventions.
+
+At the repo root, after the contract is written:
+
+| State | Action |
+| --- | --- |
+| `AGENTS.md` absent | Create it holding the pointer block, nothing else |
+| `AGENTS.md` present | Append the pointer block once, below existing content |
+| `CLAUDE.md` absent | `ln -s AGENTS.md CLAUDE.md` |
+| `CLAUDE.md` present, not a symlink to `AGENTS.md` | Append the pointer block once |
+
+The block, verbatim, markers included:
+
+````md
+<!-- shipit:contract -->
+## Repo contract (shipit)
+
+Detected from this repository, not assumed. Read before writing code here.
+
+- `.sdd/stack.md` — stack facts, each with evidence
+- `.sdd/conventions.md` — patterns this repo follows, each with an exemplar
+- `.sdd/rules/` — per-layer and per-test-kind rules
+- `.sdd/config.json` — verified commands, layers, tracker
+
+`unknown[]` in `config.json` lists what detection could not prove. Ask rather than
+guess for anything named there.
+<!-- /shipit:contract -->
+````
+
+A file already containing `<!-- shipit:contract -->` has that block **replaced in
+place**, never a second copy appended. If `ln -s` fails — Windows without developer
+mode — write `CLAUDE.md` as a real file holding the same block, and say which of the
+two happened in the report.
+
 ## Hard rules
 
 - **No evidence, no claim.** Every line in `.sdd/*.md` carries a `path:line` or
@@ -44,6 +83,9 @@ Produces, at the repo root:
   are the only paths to a mutation, and each asks first.
 - **Never write a secret** into `.sdd/`. `worktree.link[]` stays empty unless the
   user names paths explicitly.
+- **The pointer never overwrites an agent doc.** Everything outside the
+  `<!-- shipit:contract -->` markers belongs to the user and is left byte-identical.
+  The pointer links to the contract; it never restates a fact from it.
 - No product code. No branch, commit, PR, or tracker write.
 
 ## Workflow
@@ -56,7 +98,8 @@ Produces, at the repo root:
 6. **Derive test rules.** One real test per kind, reduced to its shape.
 7. **Detect tracker and companions.** Adapter and tier status. No installs.
 8. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
-9. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. Fix before reporting.
+9. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
+10. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
 
 ## Refresh mode
 
@@ -68,6 +111,8 @@ Produces, at the repo root:
 - A file that has been edited by hand is **never** overwritten without showing the
   diff and asking. Human edits outrank detection — someone knew something the
   repo does not show.
+- The pointer block is replaced between its markers without asking — it is generated
+  content. A missing block is re-added. Text outside the markers is never touched.
 - Report what changed, what was kept, and what became `unknown` since last run.
 
 ## Flags
@@ -81,7 +126,8 @@ Produces, at the repo root:
 
 ## Report
 
-- Paths written.
+- Paths written, including whether `AGENTS.md` was created or appended, and whether
+  `CLAUDE.md` is a symlink or a copy.
 - Stack detected, one line.
 - Commands verified, with the exit code each returned.
 - **`unknown[]`, listed loudly.** Silence here is what poisons every later plan.
