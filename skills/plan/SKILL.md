@@ -29,9 +29,8 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
   `.sdd/rules/tests/<kind>.md` for each test planned. Only those.
 - Required: `references/output-contract.md`. It owns sections, size budget, and
   prohibited output; this file does not restate it.
-- Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md` for the scope gate.
-  If that path does not resolve, try `../../references/lean-ladder.md` relative to
-  this skill directory.
+- Required: `../../references/lean-ladder.md`, relative to this skill directory,
+  for the scope gate.
 - Required: `references/discovery-protocol.md`. Every run does discovery, and it
   owns the graph-before-`rg` order (graphify is the supported graph tool; its
   read commands come from `config.json`, never from its own skill or docs).

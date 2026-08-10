@@ -19,8 +19,8 @@ to `handoff` in `review` mode.
   status.
 - Required: the `.sdd/rules/*` files for the layers a fix actually touches. Only
   those.
-- Required: `${CLAUDE_PLUGIN_ROOT}/references/lean-ladder.md` for the pushback tag
-  vocabulary. Fallback: `../../references/lean-ladder.md`.
+- Required: `../../references/lean-ladder.md`, relative to this skill directory,
+  for the pushback tag vocabulary.
 - Never bulk-load rules or docs. A three-line fix does not justify reading the
   layer's whole rule set.
 
@@ -77,9 +77,8 @@ No items → report "nothing to fix" and stop.
    targeted test green → next item. One item at a time; batching fixes makes it
    impossible to say which change resolved which thread.
 4. **Validate.** The full chain from
-   `${CLAUDE_PLUGIN_ROOT}/skills/implement/references/validation-standards.md`
-   (fallback: `../implement/references/validation-standards.md` from this skill
-   directory) — same order, same reporting, same contract-drift rule. Exact
+   `../implement/references/validation-standards.md`, relative to this skill
+   directory — same order, same reporting, same contract-drift rule. Exact
    commands and exit codes.
 5. **Report.** The item table with a resolution per row, pushback justifications
    verbatim, a `Files Changed` manifest, and validation results.

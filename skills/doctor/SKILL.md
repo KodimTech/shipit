@@ -16,8 +16,9 @@ lose rather than implying breakage.
 ## Hard rules
 
 - **Default is report-only.** Nothing installed, nothing mutated, no file written.
-- `--fix` runs `${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh --yes` after **one**
-  confirmation that lists what will run and what each command grants.
+- `--fix` runs `../../scripts/companions.sh --yes`, relative to this skill
+  directory, after **one** confirmation that lists what will run and what each
+  command grants.
 - **Never build a graph.** Not on `--fix`, not on any flag. It costs tokens, and
   that is the user's call. Print the command; stop there.
 - Never `sudo`. Never pipe a downloaded script into a shell. Never install a package
