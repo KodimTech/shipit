@@ -23,10 +23,12 @@ codex plugin marketplace add KodimTech/shipit
 codex plugin add shipit@shipit
 ```
 
-Start a new session and the seven skills are available — Codex loads them by
-their descriptions, so ask for the step ("plan this ticket with shipit") instead
-of typing a slash command. Same `skills/` directory as Claude Code and the same
-`.sdd/` contract, so a repo initialized in one runtime works in the others.
+Start a new session and the seven skills are available. Codex matches them by
+description, and the same names work as slash commands — `/shipit:plan`,
+`/shipit:init`, `/shipit:implement`, `/shipit:handoff`, `/shipit:pr-fix`,
+`/shipit:status`, `/shipit:doctor` — exactly as in Claude Code. Same `skills/`
+directory and the same `.sdd/` contract, so a repo initialized in one runtime
+works in the others.
 
 Update with `codex plugin marketplace upgrade shipit`; uninstall with
 `codex plugin remove shipit@shipit`.
