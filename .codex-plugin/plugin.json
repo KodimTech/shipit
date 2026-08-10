@@ -1,6 +1,6 @@
 {
   "name": "shipit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Spec-driven development for any repo. `init` detects your stack, commands, layers and tests from evidence; `plan` writes a contract in your checkout (parallel worktrees are opt-in); `implement` executes and verifies it; `handoff` is the only skill that touches git, GitHub, or your tracker.",
   "author": {
     "name": "Kodim Tech",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "shipit",
     "shortDescription": "Plan, implement and deliver work under a contract generated from your own repo",
-    "longDescription": "shipit detects your conventions instead of assuming them. `init` reads the repository once and writes a contract at `.sdd/`; `plan`, `implement`, `pr-fix` and `handoff` all work from that contract, so nothing in the plugin needs to know your framework. Parallel worktrees are opt-in, and git, GitHub and tracker writes happen only in `handoff`.",
+    "longDescription": "shipit detects your conventions instead of assuming them. `init` reads the repository once, writes a contract at `.sdd/`, and points `AGENTS.md` and `CLAUDE.md` at it so any agent loads it; `plan`, `implement`, `pr-fix` and `handoff` all work from that contract, so nothing in the plugin needs to know your framework. Parallel worktrees are opt-in, and git, GitHub and tracker writes happen only in `handoff`.",
     "developerName": "Kodim Tech",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write"],

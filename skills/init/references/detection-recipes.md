@@ -178,7 +178,12 @@ Find `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/*`, `.windsurf/rules/*`,
 in `docs.agent_docs`.
 
 Resolve symlinks: two paths pointing at one file are one doc, and loading both is
-loading the same file twice.
+loading the same file twice. This is also why `CLAUDE.md` is symlinked to
+`AGENTS.md` rather than copied when both are absent.
+
+Ignore any `<!-- shipit:contract -->` block you find: shipit wrote it on a previous
+run. It is a pointer, not a source. A doc containing nothing else is not an agent
+doc and does not go into `docs.agent_docs`.
 
 Then **subtract**. Anything those docs already state does not go into `.sdd/*.md`.
 What remains is what shipit records. Where a doc contradicts the repo, the repo
