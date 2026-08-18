@@ -23,8 +23,9 @@ Produces, at the repo root:
 
 Whether `.sdd/` is committed or stays local is a decision made once, at the first
 `init` — recorded in `sdd_tracking`. Committed is the default: a team contract,
-not a local cache, visible to CI, teammates, and any other agent. Gitignored keeps
-the contract private to this checkout; each collaborator runs `init` for their own.
+not a local cache, visible to CI, teammates, and any other agent. Local keeps
+the contract private to this checkout via `.git/info/exclude`; each collaborator
+runs `init` for their own.
 
 ## Discovery pointer
 
@@ -92,9 +93,11 @@ two happened in the report.
 - **`sdd_tracking` is asked once.** First `init` only, before anything is written.
   Refresh reads the recorded value and never re-asks except on a discrepancy
   against real git state.
-- **Writing `.gitignore` is allowed, committing it is not.** Gitignored tracking
-  appends a `.sdd/` entry if nothing already covers it — a disk write like any
-  other `.sdd/*` file, not a commit.
+- **Local tracking uses `.git/info/exclude`, never `.gitignore`.** `.gitignore` is
+  itself a shared, committed file — writing to it to keep something "local" is a
+  contradiction. `.git/info/exclude` lives under `.git/`, is never committed, and
+  the decision stays exactly as private as intended, in every collaborator's own
+  checkout.
 - No product code. No branch, commit, PR, or tracker write.
 
 ## Workflow
@@ -103,12 +106,12 @@ two happened in the report.
 2. **Refresh check.** `.sdd/` already exists → switch to Refresh mode below.
 3. **Ask tracking.** First `init` only — there is no recorded decision yet. Ask
    whether `.sdd/` should be committed (default — a team contract visible to CI,
-   teammates, and any other agent) or stay local, gitignored (nobody else sees it;
-   each collaborator runs `init` themselves; a task's plan file won't travel as a
+   teammates, and any other agent) or stay local (nobody else sees it; each
+   collaborator runs `init` themselves; a task's plan file won't travel as a
    PR diff either — `handoff` pastes it into the PR body instead). Write the
-   answer to `sdd_tracking`. Gitignored → check `git check-ignore -q .sdd` first,
-   and append a `.sdd/` entry to `.gitignore` only if nothing already covers it
-   (creating the file if it does not exist).
+   answer to `sdd_tracking`. Local → check `git check-ignore -q .sdd` first, and
+   append a `.sdd/` entry to `.git/info/exclude` only if nothing already covers
+   it — never to `.gitignore`.
 4. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
 5. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
 6. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
@@ -133,8 +136,8 @@ two happened in the report.
 - `sdd_tracking` absent — config predates this field — → ask, same as a first
   `init`, before continuing refresh.
 - `sdd_tracking` present → read it, never re-asked — unless the repo state
-  disagrees: recorded `gitignored` but `git ls-files .sdd | head -1` returns a
-  tracked path, or `.gitignore` no longer covers `.sdd/`. Either disagreement is
+  disagrees: recorded `local` but `git ls-files .sdd | head -1` returns a
+  tracked path, or `git check-ignore -q .sdd` now fails. Either disagreement is
   reported and asked again, same as a hand-edited file.
 - Report what changed, what was kept, and what became `unknown` since last run.
 
@@ -151,7 +154,7 @@ two happened in the report.
 
 - Paths written, including whether `AGENTS.md` was created or appended, and whether
   `CLAUDE.md` is a symlink or a copy.
-- Tracking: committed or gitignored, and whether `.gitignore` was touched.
+- Tracking: committed or local, and whether `.git/info/exclude` was touched.
 - Stack detected, one line.
 - Commands verified, with the exit code each returned.
 - **`unknown[]`, listed loudly.** Silence here is what poisons every later plan.

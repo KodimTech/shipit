@@ -54,7 +54,8 @@ that belongs to `/shipit:status --prune`.
 
 ## Share the graph
 
-`graph` output is commonly gitignored, which means a fresh worktree has none — the
+`graph` output is commonly excluded (via `.gitignore` or `.git/info/exclude`),
+which means a fresh worktree has none — the
 parallelism feature would otherwise kill the discovery accelerator on every branch
 but one.
 
@@ -71,12 +72,12 @@ this.
 
 ## Share the `.sdd` contract
 
-`sdd_tracking: gitignored` means `.sdd/` is never committed — a fresh worktree has
+`sdd_tracking: local` means `.sdd/` is never committed — a fresh worktree has
 none, and `plan`/`implement` refuse to run without it. Unlike the graph, this is
 not optional: there is no alternative that keeps them working.
 
 ```bash
-# only when sdd_tracking is "gitignored", the source exists, and the target does not
+# only when sdd_tracking is "local", the source exists, and the target does not
 [ -d "$MAIN/.sdd" ] && [ ! -e "$WT/.sdd" ] \
   && ln -s "$MAIN/.sdd" "$WT/.sdd"
 ```

@@ -156,9 +156,13 @@ CLI only → `graph: null`, and note in the report that `graphify .` would build
 (state the cost; do not run it).
 Neither → `graph: null`, and no skill mentions a graph again.
 
-Also check whether the graph output is gitignored (`git check-ignore -q
-graphify-out`). If it is, set `worktree.share_graph: true` — a fresh worktree will
-have no graph of its own.
+Also check whether the graph output is excluded (`git check-ignore -q
+graphify-out`, true whether the rule lives in `.gitignore` or `.git/info/exclude`).
+If it is, set `worktree.share_graph: true` — a fresh worktree will have no graph
+of its own.
+Uncovered → `graphify-out/` is a local build artifact, never a team contract;
+append it to `.git/info/exclude` (never `.gitignore` — same reasoning as
+`sdd_tracking: local`), then set `worktree.share_graph: true`.
 
 ## 9 — Branch and commit conventions
 

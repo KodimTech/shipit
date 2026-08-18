@@ -56,7 +56,7 @@ tier 3  ponytail            absent   correct — ladder is vendored
 
 contract
         .sdd/               ok       generated 2026-07-28
-        tracking            local    gitignored, shared into worktrees
+        tracking            local    .git/info/exclude, shared into worktrees
         unknown[]           2 keys   typecheck, security
         test_one            ok       carries {path}
         AGENTS.md pointer   ok       CLAUDE.md → AGENTS.md

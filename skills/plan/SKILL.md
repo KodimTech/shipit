@@ -108,7 +108,7 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 - Plan path. Name the worktree only if one was used.
 - Discovery source: graph, or the rg-only warning from `discovery-protocol.md` § 0
   when no graphify output is in the project. One line, never omitted.
-- `sdd_tracking: gitignored` → say so: the plan file won't travel as a PR diff,
+- `sdd_tracking: local` → say so: the plan file won't travel as a PR diff,
   `handoff` pastes it into the PR body instead.
 - Whether a tracker issue id was detected, and the slug produced.
 - Collisions found with in-flight worktrees, when there were any to check.
