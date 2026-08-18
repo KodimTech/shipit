@@ -17,6 +17,9 @@ status transition, and what counts as terminal.
 - An unavailable tracker is `partial`, never a silent skip. Name the failing call.
 - QA steps are copied **verbatim** into tracker comments. They were written for
   someone who does not read code.
+- Everything else in a comment is one line: summary, validation result, PR link. No
+  file list, no diff narration, no restating the ticket back to the person who wrote
+  it.
 
 ## `linear`
 

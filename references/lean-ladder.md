@@ -87,7 +87,9 @@ a repo with a real suite leaves the coverage gate red and the change unshippable
 **Report length.** Upstream says code first, at most three short lines. The
 reports from `implement` and `pr-fix` are requested output, not defensive prose —
 upstream's own carve-out ("explanation the user explicitly asked for is not
-debt") is what applies. The anti-essay rule governs code comments and chat
-messages, never the report, and never the non-developer QA steps.
+debt") is what applies. Their length is capped by their own templates, which cap
+each section and drop the ones that would be filler — not by the three-line rule.
+The anti-essay rule still governs code comments and chat messages in full: a
+comment narrating the line below it is debt, whatever rung the code landed on.
 
 Everything else on the ladder stands.

@@ -37,8 +37,16 @@ and verified with commands that are known to run in this repo.
   evidence. After that, stop and report.
 - Never run `git commit`, `git push`, a PR command, or a tracker write. Delivery
   happens only by invoking `handoff`.
-- Non-developer QA steps and the PR body are **exempt from prose compression**.
-  Write them in full even under a terse-output mode.
+- **Comment only what the code cannot say.** Match the file's existing comment
+  density — neighbouring functions carry none, yours carries none. No comment
+  restating the line below it, no section banners, no narration of the plan, no
+  changelog of what this run changed. Allowed: a non-obvious *why*, a debt marker,
+  a doc comment the repo's convention already requires. A comment that would
+  survive `git log` telling the reader the same thing is not one.
+- **Short by default, everywhere.** Report prose, PR body, and chat output state
+  the fact and stop. No restating the diff in words, no re-explaining a section the
+  reader just read. Non-developer QA steps are the one exception — written in full
+  for someone who does not read code, even under a terse-output mode.
 
 ## Workflow
 
@@ -60,11 +68,14 @@ and verified with commands that are known to run in this repo.
    layer. An **unexpected** red is investigated before any production change.
    `commands.test_one` null or missing `{path}` → say the loop is degraded and run
    `test_all` instead. Do not silently skip the loop.
-4. **Implement.** The smallest correct change. Repo patterns over new structure.
-   Apply the ladder as stance, not as licence to deviate from the plan. A deliberate
-   shortcut leaves a debt marker with its ceiling and upgrade trigger.
-5. **Validate.** `references/validation-standards.md`. Report exact commands and
-   exit codes.
+4. **Implement.** The smallest correct change. Repo patterns over new structure —
+   including their comment density. Apply the ladder as stance, not as licence to
+   deviate from the plan. A deliberate shortcut leaves a debt marker with its
+   ceiling and upgrade trigger.
+5. **Validate.** `references/validation-standards.md`. Scoped to what changed —
+   the tests written plus the tests covering the changed files. The full suite is
+   CI's job and is not run here without a reason named in that reference. Report
+   exact commands and exit codes.
 6. **Docs sync.** The plan has a `Docs impact` section → apply each listed edit,
    scoped to the named sections, and list the docs in `Files Changed`. No doc
    rewrites. If the implementation drifted in a way that hits a docs trigger the
@@ -77,6 +88,8 @@ and verified with commands that are known to run in this repo.
    validation covered instead.
 8. **PR text.** Compose the title and body from
    `assets/pr-description-template.md` into the report. Write it; do not post it.
+   Every section there earns its place or is dropped — an empty heading costs a
+   reviewer more than it gives.
 9. **Deliver.** Validation green and the report written → invoke `handoff` in
    `implementation` mode and pass it the report. Its report is appended to yours
    verbatim, never summarized into a claim it did not make. Do not invoke it when

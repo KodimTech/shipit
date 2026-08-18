@@ -12,7 +12,7 @@ what developer validation covered instead. Then delete the next section.>
 
 ## QA Steps For Non-Developer
 
-<Exempt from prose compression. Write these in full, always.>
+<The one section written in full, always, however terse the rest of the run is.>
 
 No framework names. No class, file, or function names. No terminal commands. If a
 step cannot be described without one of those, it belongs in Validation instead.
@@ -33,7 +33,9 @@ message shown on screen>
 
 ## Summary
 
-<2-4 sentences. What changed and why. Written for someone reviewing the PR cold.>
+<2 sentences, 3 when the change is genuinely novel. What changed and why, for
+someone reviewing the PR cold. Not a walk through the files — the table below and
+the diff already carry those.>
 
 ## Files Changed
 
@@ -64,12 +66,15 @@ Steps unverifiable because the contract lists them as unknown: <keys, or "none">
 
 ## Security Notes
 
+One line per item that applies. A line that would read "n/a" is dropped, not written.
+
 - New entry points and what authorizes each: <…>
 - Scoping enforced on new records or queries: <…>
 - Input validated, and where the boundary is: <…>
 - Deliberately left open: <…>
 
-<`None` is valid — after checking, not by default.>
+<`None — checked entry points, scoping, and input.` is a complete answer when true.
+Valid after checking, not by default.>
 
 ## Handoff
 
@@ -77,6 +82,9 @@ Steps unverifiable because the contract lists them as unknown: <keys, or "none">
 summarize what handoff did; paste what it reported.>
 
 ## Known Risks or Follow-ups
+
+One line each: the risk, and what would trigger acting on it. Nothing to report →
+`None.` Do not pad this with restated risks from the plan.
 
 - <risk, and what would trigger acting on it>
 
@@ -91,5 +99,5 @@ the comment now.>
 
 ## PR Preparation
 
-<Title and body from `assets/pr-description-template.md`. Exempt from prose
-compression. Written here, posted by `handoff` — never posted from this skill.>
+<Title and body from `assets/pr-description-template.md`, including its section
+drops. Written here, posted by `handoff` — never posted from this skill.>
