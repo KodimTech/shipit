@@ -170,7 +170,7 @@ writes the plan inside it. Three things make that safe:
   table of every active worktree's plan and intersects paths. Overlap is reported with
   the worktree that claims it, and the decision — sequence, narrow, or proceed — is
   recorded in the plan.
-- **Shared graph.** Graph output is usually gitignored, so a fresh worktree has none.
+- **Shared graph.** Graph output is usually excluded via `.git/info/exclude`, so a fresh worktree has none.
   It is symlinked read-only from the main checkout. Graph updates happen only in the
   main checkout, after the merge.
 - **No secrets by default.** `worktree.link[]` starts empty. Filling it symlinks

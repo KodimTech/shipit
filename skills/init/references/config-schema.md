@@ -20,7 +20,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | --- | --- | --- |
 | `shipit_version` | string | Plugin version that wrote the file |
 | `generated_at` | date | Used by refresh mode to detect human edits |
-| `sdd_tracking` | `committed` \| `gitignored` | Asked once at first `init`. Read by `handoff` (staging) and `plan`'s worktree step (contract sharing) |
+| `sdd_tracking` | `committed` \| `local` | Asked once at first `init`. `local` means excluded via `.git/info/exclude`, never `.gitignore`. Read by `handoff` (staging) and `plan`'s worktree step (contract sharing) |
 | `repo.name` | string | Basename of the git toplevel |
 | `repo.default_branch` | string | From `origin/HEAD` |
 | `repo.remote` | string | Usually `origin` |
