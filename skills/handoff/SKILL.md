@@ -33,6 +33,10 @@ them.
 
 - Never write product code. Never edit a plan. Delivery only.
 - **Stage by explicit path.** Never `git add -A`, never `git add .`.
+- **`sdd_tracking: gitignored` excludes every `.sdd/*` path from staging**, in every
+  mode, even when the report's `Files Changed` lists one. Drop it from the manifest
+  and note it in the report as informational — never as an error or a stop
+  condition.
 - `plan` mode stages the plan file only. `implementation` and `review` modes use the
   report's `Files Changed` as the manifest: every staged path must appear there
   **and** in the current diff. A listed path absent from the diff, or an intended
@@ -50,13 +54,15 @@ them.
 ## Preflight — all modes
 
 1. `git status`, current branch, remote. `gh auth status` when the host is GitHub.
-2. Confirm which checkout you are in. The main checkout is the default and is fine.
+2. Read `sdd_tracking` from `.sdd/config.json` (absent → `committed`). Gitignored →
+   no path under `.sdd/` is ever staged, in any mode; see Hard rules.
+3. Confirm which checkout you are in. The main checkout is the default and is fine.
    Only when the plan names a worktree must you be in it — see
    `references/worktree-lifecycle.md`.
-3. Tracker issue id present in the branch or slug? Read its **current** status
+4. Tracker issue id present in the branch or slug? Read its **current** status
    before deciding any transition.
-4. Confirm the artifacts to deliver exist on disk.
-5. Any check fails → stop and report what is missing. Produce **no** partial side
+5. Confirm the artifacts to deliver exist on disk.
+6. Any check fails → stop and report what is missing. Produce **no** partial side
    effects. Half a handoff is worse than none.
 
 ## Mode: plan
@@ -65,10 +71,15 @@ them.
   branch convention from `.sdd/conventions.md`; otherwise
   `<user>/<issue-id>-<slug>`. Never invent a prefix. Usually `plan` already created
   it with the worktree; verify rather than re-create.
-- **Commit** — the plan file only.
+- **Commit** — the plan file only. `sdd_tracking: gitignored` → nothing to commit
+  (the plan file is untracked by design): report `Commit: skipped (.sdd is
+  local-only per config)`, never an empty commit.
 - **Push** — normally, setting upstream when missing.
 - **PR** — Draft. Title `<ISSUE-ID> Plan: <short title>`. Body states this is
-  planning only and execution belongs to `/shipit:implement`.
+  planning only and execution belongs to `/shipit:implement`. `sdd_tracking:
+  gitignored` → the body also carries the plan's content verbatim (Goal,
+  Acceptance, Files, Notes) — with no commit to show it, the PR would otherwise
+  arrive empty of everything a reviewer needs.
 - **Tracker** — the plan comment from the adapter reference.
 - **Status** — earliest-state to next-state only (e.g. `Backlog` → `Todo`). Leave
   started, completed, cancelled, and duplicate states untouched.
@@ -110,7 +121,8 @@ One line per side effect, each marked `completed`, `partial`, or `blocked`, with
 exact reason for anything short of completed:
 
 - Branch.
-- Commit hash, and the files staged.
+- Commit hash, and the files staged — plus any `.sdd/*` path excluded because
+  tracking is gitignored.
 - Push.
 - PR url.
 - Review thread replies and resolutions — `review` mode, one line per thread.
