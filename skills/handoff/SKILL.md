@@ -50,6 +50,10 @@ them.
   are terminal.
 - Never merge. Never push to the default branch. Never force-push.
 - Never remove a worktree. That is `/shipit:status --prune`.
+- **One line per side effect.** This skill reports what it did, never what the
+  change was — the report it was handed already said that, and a PR body or tracker
+  comment is not improved by a second telling. Copy sections from the report
+  verbatim or leave them out; never expand them.
 
 ## Preflight — all modes
 
@@ -88,12 +92,14 @@ them.
 
 - **Commit** — every path in the report's `Files Changed`.
 - **Push** — normally.
-- **PR** — update the existing plan PR on this branch with the summary, validation
-  results, risk, and QA steps, then mark it ready for review. Create a new PR only
-  when none exists.
-- **Tracker** — summary, validation result, and the QA steps **copied verbatim**
-  from the report. They were written for a non-developer; editing them for brevity
-  destroys their purpose.
+- **PR** — replace the plan PR's body on this branch with the report's
+  `PR Preparation` body verbatim, then mark it ready for review. Verbatim means no
+  re-wording, no added preamble, and no re-adding a section the template dropped.
+  Create a new PR only when none exists.
+- **Tracker** — the report's summary, the validation result, the PR link, and the
+  QA steps **copied verbatim**. Nothing else: no file list, no diff narration. The
+  QA steps were written for a non-developer, so they are the one part never
+  shortened.
 - **Status** — move to the review state. Leave QA-ready, completed, cancelled, and
   duplicate states untouched.
 
@@ -118,7 +124,8 @@ pushback justifications.
 ## Report
 
 One line per side effect, each marked `completed`, `partial`, or `blocked`, with the
-exact reason for anything short of completed:
+exact reason for anything short of completed. No preamble, no summary paragraph, no
+recap of the change — a `completed` line needs no explanation:
 
 - Branch.
 - Commit hash, and the files staged — plus any `.sdd/*` path excluded because

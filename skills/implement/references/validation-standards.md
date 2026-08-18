@@ -12,8 +12,8 @@ the top.
 | Step | Key | Skip when |
 | --- | --- | --- |
 | 1 | `test_one` on each test written | null, or has no `{path}` |
-| 2 | `test_one` on the nearest related tests | same |
-| 3 | `test_all` | null |
+| 2 | `test_one` on the test files covering each changed file | same |
+| 3 | `test_all` | **by default — see below** |
 | 4 | `lint` | null |
 | 5 | `typecheck` | null |
 | 6 | `security` | null |
@@ -23,6 +23,31 @@ A `null` key is skipped **silently** — the repo does not have that step, and s
 "skipped" for every absent key is noise. A key present in `unknown[]` is different:
 report it once, because the contract could not determine it and coverage of that
 dimension is genuinely missing.
+
+## The full suite belongs to CI
+
+Step 3 does not run by default. Steps 1 and 2 are the gate: the tests written this
+run, plus the test files covering every file in the report's `Files Changed`. That
+is the blast radius a local run can actually reason about. The whole suite is CI's
+job, and re-running it here buys minutes of wall clock to re-prove code this change
+never touched.
+
+Run `test_all` only when one of these is true, and say which one:
+
+- `test_one` is null or has no `{path}` — the scoped loop is unavailable, so the
+  suite is the only way to run anything. Report the loop as degraded.
+- The plan explicitly asks for it (a shared-fixture change, a global config or
+  initializer edit, a rename that crosses the whole suite).
+- Step 1 or 2 turned up a failure whose cause is plausibly repo-wide.
+
+Not covered by any of those → the report line is
+`test_all → not run (CI owns the full suite)`. That is a complete answer, not a gap,
+and it never blocks `handoff`.
+
+Two things this does not relax: `coverage_gate` still runs when it is configured,
+even if the repo's gate command drives the suite itself — red coverage blocks the
+merge, so it is worth the wall clock. And a failing scoped test is still a hard
+stop; scoping down is about what gets *proved*, never about what gets *ignored*.
 
 ## Placeholders
 
@@ -94,7 +119,8 @@ true → treat `coverage_gate` as mandatory, not advisory.
 
 All of:
 
-- Every non-null command in the chain ran.
+- Every non-null command in the chain ran, except `test_all` when it was correctly
+  skipped per the rule above.
 - Every one exited 0.
 - No test was deleted, skipped, or weakened to get there.
 - No exclusion was added to a lint, security, or coverage config.

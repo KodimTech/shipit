@@ -36,8 +36,8 @@ Notes:
 - Having the CLI without a graph changes nothing. They are two separate gaps.
 - Inside a worktree the graph is normally a symlink to the main checkout's — that is
   correct, not stale. `worktree.share_graph` controls it.
-- caveman compresses prose. shipit exempts non-developer QA steps and PR bodies from
-  compression either way, so installing it never degrades the deliverable.
+- caveman compresses prose. shipit exempts non-developer QA steps from compression
+  either way, so installing it never degrades the deliverable.
 
 ## Tier 3 — do not enable during a cycle
 

@@ -72,7 +72,7 @@ and keep it exported — the commands read it to find the skills. Uninstall:
         │
 /shipit:plan        plan contract in the current checkout once per task
         │
-/shipit:implement   red/green + verified validation
+/shipit:implement   red/green + validation scoped to the change
         │
 /shipit:handoff     branch, commit, PR, tracker          the only skill with side effects
         │
@@ -226,7 +226,7 @@ first:
 | `.sdd/config.json` | Re-detecting the stack on every run. Paid once by `init`. |
 | Context budget | Wide reads. Rule files load only for layers actually touched. |
 | graphify | Grep dumps and whole-file reads, replaced by a scoped subgraph. |
-| caveman | Prose. Non-developer QA steps and PR bodies stay exempt from compression. |
+| caveman | Prose. Non-developer QA steps stay exempt from compression; everything else, PR bodies included, is short by default. |
 
 Plans are capped by **uncertainty**, not task size: ≤40 lines when the change follows
 an analogue, ≤150 as a hard cap for novel architecture. Over budget means the plan is

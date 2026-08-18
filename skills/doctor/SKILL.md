@@ -76,7 +76,7 @@ reading this should know whether they can proceed, in one line.
 | tracker `none` | No issue comments, no status transitions. Everything else works. |
 | graphify CLI | Discovery falls back to `rg`/`git grep`. Same answers, more tokens. |
 | graphify graph | Same as above — having the CLI without a graph changes nothing. |
-| caveman | Chat prose and reports stay long. Note that shipit exempts non-developer QA steps and PR bodies from compression either way. |
+| caveman | Chat prose and reports stay long. Note that shipit keeps PR bodies and reports short on its own, and exempts non-developer QA steps from compression either way. |
 | `.sdd/` absent | `plan` and `implement` refuse to run. Fix: `/shipit:init`. |
 | pointer absent | shipit skills still read `.sdd/` by path, but every other agent working in this repo ignores it and codes to its own priors. Fix: `/shipit:init` (refresh). |
 | `unknown[]` non-empty | Those verification steps do not exist. Named in every implement report. |

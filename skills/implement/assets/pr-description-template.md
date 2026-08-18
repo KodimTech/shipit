@@ -1,6 +1,8 @@
 # PR Description Template
 
-Exempt from prose compression. A reviewer reads this cold.
+A reviewer reads this cold, and reads the diff next to it. Say what the diff cannot
+say, then stop. Length is not thoroughness — a body that restates the diff makes the
+real risk harder to find.
 
 ## Title
 
@@ -11,50 +13,55 @@ Follow the repo's commit convention from `.sdd/conventions.md` when it has one
 
 ## Body
 
+Sections are optional except **What**, **Validation**, and **Risk**. Drop any
+heading whose content would be filler; never write a heading followed by "N/A" or a
+restatement of another section.
+
 ```markdown
 ## What
 
-<2-4 sentences. The change, in reviewer terms. Not a file list — the diff already
-shows files.>
+<1-2 sentences. The change in reviewer terms. Not a file list — the diff has that.>
 
 ## Why
 
-<The problem this solves. Link the issue rather than restating it.>
+<One line. Link the issue rather than restating it. Drop when the title says it.>
 
 ## How
 
-<Only the parts a reviewer would otherwise have to reverse-engineer: a non-obvious
-decision, an ordering constraint, why the boring approach did not work. Skip
-entirely when the diff is self-explanatory.>
+<Only what a reviewer would otherwise reverse-engineer: a non-obvious decision, an
+ordering constraint, why the boring approach failed. 3 lines max. Usually absent —
+a self-explanatory diff needs no How.>
 
 ## Validation
 
-<Commands run, with exit codes. Copy from the report — do not re-word.>
+<Commands and exit codes, copied from the report. A code block, no prose around it.>
 
 ## Risk
 
-<What could break, and what would catch it. `Low — <reason>` is a complete answer
-when it is true.>
+<One line: what could break, and what would catch it. `Low — <reason>` is complete
+when true.>
 
 ## QA
 
-<For UI changes: paste the non-developer QA steps verbatim. They were written for
-someone who does not read code, and editing them for brevity destroys their
-purpose.>
+<UI changes: paste the non-developer QA steps verbatim. Written for someone who
+does not read code — trimming them for brevity destroys their purpose, and this is
+the one section that is never cut.>
 
-<For backend-only changes: `Backend only. Manual UI QA not applicable.` plus what
+<Backend-only: `Backend only. Manual UI QA not applicable.` plus one line on what
 developer validation covered.>
 
 ## Out of scope
 
-<What was deliberately left out, with the trigger for doing it later. Comes from
-the plan's `Out of scope`. Prevents the "why didn't you also…" review round.>
+<Only when the plan has entries. Bullets, one line each, with the trigger for doing
+it later. Prevents the "why didn't you also…" review round. No entries → no
+section.>
 ```
 
 ## Rules
 
 - Never claim a command passed that was not run.
 - Never describe behaviour the diff does not contain.
+- No preamble, no closing summary, no "this PR" throat-clearing, no emoji headers.
 - Draft PRs stay draft until `implement` reports green — marking ready is
   `handoff`'s move, not this template's.
 - Screenshots for any visible change. A reviewer should not have to run the branch
