@@ -35,8 +35,9 @@ lose rather than implying breakage.
    It is versioned and auditable; do not re-implement its checks inline.
 2. Add the repo-side checks the script cannot make: is `.sdd/` present, does
    `config.json` parse, is `unknown[]` non-empty, does `commands.test_one` carry
-   `{path}`, and does a `<!-- shipit:contract -->` block exist in `AGENTS.md` and in
-   `CLAUDE.md` (a symlink between the two counts as one hit, not a gap).
+   `{path}`, what `sdd_tracking` is set to, and does a `<!-- shipit:contract -->`
+   block exist in `AGENTS.md` and in `CLAUDE.md` (a symlink between the two counts
+   as one hit, not a gap).
 3. Print the report below.
 4. `--fix` → show what will run, ask once, then invoke the script with `--yes`.
    Re-run step 1 afterwards and print the new state.
@@ -55,6 +56,7 @@ tier 3  ponytail            absent   correct — ladder is vendored
 
 contract
         .sdd/               ok       generated 2026-07-28
+        tracking            local    gitignored, shared into worktrees
         unknown[]           2 keys   typecheck, security
         test_one            ok       carries {path}
         AGENTS.md pointer   ok       CLAUDE.md → AGENTS.md

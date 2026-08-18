@@ -21,7 +21,10 @@ Produces, at the repo root:
 | `.sdd/rules/<layer>.md` | agents | Per-layer rules derived from real files |
 | `.sdd/rules/tests/<kind>.md` | agents | Test shape per kind, extracted from a real test |
 
-`.sdd/` is committed. It is a team contract, not a local cache.
+Whether `.sdd/` is committed or stays local is a decision made once, at the first
+`init` — recorded in `sdd_tracking`. Committed is the default: a team contract,
+not a local cache, visible to CI, teammates, and any other agent. Gitignored keeps
+the contract private to this checkout; each collaborator runs `init` for their own.
 
 ## Discovery pointer
 
@@ -86,20 +89,34 @@ two happened in the report.
 - **The pointer never overwrites an agent doc.** Everything outside the
   `<!-- shipit:contract -->` markers belongs to the user and is left byte-identical.
   The pointer links to the contract; it never restates a fact from it.
+- **`sdd_tracking` is asked once.** First `init` only, before anything is written.
+  Refresh reads the recorded value and never re-asks except on a discrepancy
+  against real git state.
+- **Writing `.gitignore` is allowed, committing it is not.** Gitignored tracking
+  appends a `.sdd/` entry if nothing already covers it — a disk write like any
+  other `.sdd/*` file, not a commit.
 - No product code. No branch, commit, PR, or tracker write.
 
 ## Workflow
 
 1. **Preflight.** `git rev-parse --show-toplevel` for the root; `git rev-parse --abbrev-ref origin/HEAD` for the default branch. Not a git repo → say so and stop: tier 0 is unmet.
 2. **Refresh check.** `.sdd/` already exists → switch to Refresh mode below.
-3. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
-4. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
-5. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
-6. **Derive test rules.** One real test per kind, reduced to its shape.
-7. **Detect tracker and companions.** Adapter and tier status. No installs.
-8. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
-9. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
-10. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
+3. **Ask tracking.** First `init` only — there is no recorded decision yet. Ask
+   whether `.sdd/` should be committed (default — a team contract visible to CI,
+   teammates, and any other agent) or stay local, gitignored (nobody else sees it;
+   each collaborator runs `init` themselves; a task's plan file won't travel as a
+   PR diff either — `handoff` pastes it into the PR body instead). Write the
+   answer to `sdd_tracking`. Gitignored → check `git check-ignore -q .sdd` first,
+   and append a `.sdd/` entry to `.gitignore` only if nothing already covers it
+   (creating the file if it does not exist).
+4. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
+5. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
+6. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
+7. **Derive test rules.** One real test per kind, reduced to its shape.
+8. **Detect tracker and companions.** Adapter and tier status. No installs.
+9. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
+10. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
+11. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
 
 ## Refresh mode
 
@@ -113,6 +130,12 @@ two happened in the report.
   repo does not show.
 - The pointer block is replaced between its markers without asking — it is generated
   content. A missing block is re-added. Text outside the markers is never touched.
+- `sdd_tracking` absent — config predates this field — → ask, same as a first
+  `init`, before continuing refresh.
+- `sdd_tracking` present → read it, never re-asked — unless the repo state
+  disagrees: recorded `gitignored` but `git ls-files .sdd | head -1` returns a
+  tracked path, or `.gitignore` no longer covers `.sdd/`. Either disagreement is
+  reported and asked again, same as a hand-edited file.
 - Report what changed, what was kept, and what became `unknown` since last run.
 
 ## Flags
@@ -128,6 +151,7 @@ two happened in the report.
 
 - Paths written, including whether `AGENTS.md` was created or appended, and whether
   `CLAUDE.md` is a symlink or a copy.
+- Tracking: committed or gitignored, and whether `.gitignore` was touched.
 - Stack detected, one line.
 - Commands verified, with the exit code each returned.
 - **`unknown[]`, listed loudly.** Silence here is what poisons every later plan.

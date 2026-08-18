@@ -69,6 +69,27 @@ command from a worktree** — it would write branch-local state into the shared
 graph. Updating happens in the main checkout after the merge; `implement` enforces
 this.
 
+## Share the `.sdd` contract
+
+`sdd_tracking: gitignored` means `.sdd/` is never committed — a fresh worktree has
+none, and `plan`/`implement` refuse to run without it. Unlike the graph, this is
+not optional: there is no alternative that keeps them working.
+
+```bash
+# only when sdd_tracking is "gitignored", the source exists, and the target does not
+[ -d "$MAIN/.sdd" ] && [ ! -e "$WT/.sdd" ] \
+  && ln -s "$MAIN/.sdd" "$WT/.sdd"
+```
+
+`config.json`, `stack.md`, `conventions.md`, and `rules/*` are read through it like
+any other file. `<paths.plans>` is written through it too — every worktree's plan
+lands in `$MAIN/.sdd/plans`, by design: it is the only place a plan can persist
+when nothing is ever committed. This is also why the collision check below still
+sees every in-flight plan even when tracking is local.
+
+`sdd_tracking: committed` → skip this section; `.sdd/` arrives with the worktree
+like any other tracked file.
+
 ## Link untracked files
 
 `worktree.link[]` is empty unless the user filled it. Empty is the expected state;
@@ -138,6 +159,7 @@ Silence here is what produces four branches that all conflict.
 - Worktree: created / reused / skipped, with path and reason.
 - Branch: name and its base.
 - Graph: shared / not shared, and why.
+- Contract: shared / not applicable (committed).
 - Links: each one by name, or `none`.
 - Setup: command and exit code, or `not configured`.
 - Collisions: one line each, or `none`.

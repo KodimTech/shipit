@@ -103,7 +103,12 @@ can never half-deliver itself.
 | `.sdd/rules/<layer>.md` | agents | Layer rules derived from real files |
 | `.sdd/rules/tests/<kind>.md` | agents | Test shape, extracted from a real test |
 
-Commit it. It is a team contract, not a local cache.
+`init` asks once, per repo, how it should be tracked:
+
+| Choice | Means |
+| --- | --- |
+| Commit (default) | A team contract — visible to CI, teammates, and any other agent |
+| Gitignore | Local only — each collaborator runs `init` for their own; worktrees get it via a symlink back to the main checkout |
 
 Three rules make it trustworthy:
 
