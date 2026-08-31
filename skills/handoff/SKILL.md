@@ -32,6 +32,7 @@ them.
 ## Hard rules
 
 - Never write product code. Never edit a plan. Delivery only.
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - **Stage by explicit path.** Never `git add -A`, never `git add .`.
 - **`sdd_tracking: local` excludes every `.sdd/*` path from staging**, in every
   mode, even when the report's `Files Changed` lists one. Drop it from the manifest

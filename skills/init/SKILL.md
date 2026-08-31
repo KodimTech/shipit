@@ -90,6 +90,9 @@ two happened in the report.
 - **The pointer never overwrites an agent doc.** Everything outside the
   `<!-- shipit:contract -->` markers belongs to the user and is left byte-identical.
   The pointer links to the contract; it never restates a fact from it.
+- **`language` is asked, never detected.** The language a repo's docs are written
+  in does not imply the language its owner wants shipit to write in. Ask once,
+  default `en`, record it in `language`.
 - **`sdd_tracking` is asked once.** First `init` only, before anything is written.
   Refresh reads the recorded value and never re-asks except on a discrepancy
   against real git state.
@@ -112,14 +115,20 @@ two happened in the report.
    answer to `sdd_tracking`. Local → check `git check-ignore -q .sdd` first, and
    append a `.sdd/` entry to `.git/info/exclude` only if nothing already covers
    it — never to `.gitignore`.
-4. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
-5. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
-6. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
-7. **Derive test rules.** One real test per kind, reduced to its shape.
-8. **Detect tracker and companions.** Adapter and tier status. No installs.
-9. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
-10. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
-11. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
+4. **Ask the output language.** First `init` only, in the same breath as tracking.
+   Which language should shipit write in — plan, report, QA guide, PR body,
+   tracker comments? Default `en`. Accept a tag (`es`, `pt-BR`) or a plain name;
+   store the tag in `language`. Prose only: code, identifiers, commit subjects,
+   branch names and `.sdd/` itself stay English. See
+   `references/config-schema.md § Scope of language`.
+5. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
+6. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
+7. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
+8. **Derive test rules.** One real test per kind, reduced to its shape.
+9. **Detect tracker and companions.** Adapter and tier status. No installs.
+10. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
+11. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
+12. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
 
 ## Refresh mode
 
@@ -139,10 +148,13 @@ two happened in the report.
   disagrees: recorded `local` but `git ls-files .sdd | head -1` returns a
   tracked path, or `git check-ignore -q .sdd` now fails. Either disagreement is
   reported and asked again, same as a hand-edited file.
+- `language` is a human decision, not a detection: keep the recorded value, never
+  re-ask. `--language` overrides it; a config predating the field gets `en`.
 - Report what changed, what was kept, and what became `unknown` since last run.
 
 ## Flags
 
+- `--language <tag>` — set `language` without asking. For CI and re-runs.
 - `--with-companions` — print the exact install commands, state what each one
   grants (ponytail ships session hooks; `uv tool install` downloads from PyPI),
   ask once, then run `scripts/companions.sh --yes`. Never builds a graph.
@@ -156,6 +168,7 @@ two happened in the report.
   `CLAUDE.md` is a symlink or a copy.
 - Tracking: committed or local, and whether `.git/info/exclude` was touched.
 - Stack detected, one line.
+- Output language recorded, and whether it came from the question or `--language`.
 - Commands verified, with the exit code each returned.
 - **`unknown[]`, listed loudly.** Silence here is what poisons every later plan.
 - Layers found, with their exemplars.

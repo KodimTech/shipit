@@ -16,6 +16,7 @@ four and no memory of which is which.
 ## Hard rules
 
 - **Read-only by default.** No commit, no push, no branch change, no removal.
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - `--prune` removes only worktrees whose PR is **merged or closed**. Never one with
   an open PR, never one with uncommitted changes, never the main checkout.
 - `git worktree remove` without `--force`, always. It refusing means uncommitted work

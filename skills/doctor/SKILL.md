@@ -16,6 +16,7 @@ lose rather than implying breakage.
 ## Hard rules
 
 - **Default is report-only.** Nothing installed, nothing mutated, no file written.
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - `--fix` runs `../../scripts/companions.sh --yes`, relative to this skill
   directory, after **one** confirmation that lists what will run and what each
   command grants.
