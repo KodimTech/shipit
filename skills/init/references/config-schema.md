@@ -24,6 +24,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `repo.name` | string | Basename of the git toplevel |
 | `repo.default_branch` | string | From `origin/HEAD` |
 | `repo.remote` | string | Usually `origin` |
+| `language` | string | Language for human-facing prose. BCP-47 tag or plain name (`en`, `es`, `pt-BR`). Asked once by `init`, default `en`. See below |
 | `docs.agent_docs` | string[] | Symlinks resolved; each file listed once |
 | `docs.owned_by_shipit` | string[] | Always `[".sdd/"]` |
 | `stack.languages` | string[] | With version pin files as evidence in `stack.md` |
@@ -71,6 +72,15 @@ Substituted at call time. Never bake the value in.
 
 A `test_one` without `{path}` is malformed: `implement` cannot target a single
 test, and the whole red-green loop degrades to running the full suite.
+
+## Scope of `language`
+
+Applies to prose a human reads: plan narrative, implementation report, QA guide,
+PR title and body, review replies, tracker comments, and what a skill prints.
+
+Never applies to: code, identifiers, comments in code, commit subjects, branch
+names, file paths, and the `.sdd/` contract itself — those stay English so the
+repo stays greppable and portable across teams.
 
 ## Warning on `worktree.link[]`
 

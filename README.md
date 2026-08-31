@@ -125,6 +125,14 @@ Three rules make it trustworthy:
 plan. That is why the evidence rules are hard rules and why `unknown[]` is printed
 loudly rather than buried in JSON.
 
+### Output language
+
+`init` asks once which language shipit should write in, and records it as `language`
+in `.sdd/config.json` (`en` by default). It governs prose a human reads — plan,
+implementation report, QA guide, PR body, tracker comments. Code, identifiers,
+commit subjects, branch names and `.sdd/` itself stay English, so the repo stays
+greppable for everyone. Change it by editing the key, or `/shipit:init --language es`.
+
 ### The pointer that makes it read
 
 No agent auto-loads a directory — not `.sdd/`, not any other name. `AGENTS.md` and

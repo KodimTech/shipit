@@ -26,6 +26,7 @@ and verified with commands that are known to run in this repo.
 ## Hard rules
 
 - Require an approved plan. Missing → stop and ask.
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - No scope expansion. No redesign. No new abstraction. No dependency upgrade.
 - No behaviour change outside the plan.
 - No weakening of authorization, scoping, security, or existing tests.

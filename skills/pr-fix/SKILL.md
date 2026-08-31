@@ -54,6 +54,7 @@ No items → report "nothing to fix" and stop.
 ## Hard rules
 
 - Minimal fix per item. No broad refactor, no new scope, no "while I'm here".
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - A comment requesting a **scope or design change is not implemented.** Mark it
   `pushback` with a one-line technical justification for `handoff` to post. Use the
   ladder's tags where they fit — `yagni:` for an abstraction with one
