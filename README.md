@@ -30,8 +30,7 @@ description, and the same names work as slash commands — `/shipit:task`,
 directory and the same `.sdd/` contract, so a repo initialized in one runtime
 works in the others.
 
-Update with `codex plugin marketplace upgrade shipit`; uninstall with
-`codex plugin remove shipit@shipit`.
+Uninstall with `codex plugin remove shipit@shipit`. Updating is below.
 
 ### OpenCode
 
@@ -43,10 +42,9 @@ ROOT=~/.config/opencode/plugins/shipit
 "$ROOT"/scripts/install-opencode.sh
 ```
 
-The installer links the eight commands and verifies OpenCode resolves them.
-Re-run those three lines any time to update — the guard skips the clone, and the
-installer pulls. It never uses sudo, never installs a package, and never edits
-`opencode.json`.
+The installer links the eight commands and verifies OpenCode resolves them. It
+never uses sudo, never installs a package, and never edits `opencode.json`. The
+same three lines are also the update — see below.
 
 Already have a checkout somewhere else? Skip the clone and run its
 `scripts/install-opencode.sh` directly — the installer uses whatever checkout it
@@ -64,6 +62,54 @@ and keep it exported — the commands read it to find the skills. Uninstall:
 ```
 /shipit:init
 ```
+
+## Update
+
+One command per runtime, and nothing to migrate: every runtime reads the same
+`skills/` directory, and a `.sdd/` contract written by an older version keeps
+working. New skills arrive as new commands — after this release, `/shipit:task`.
+
+### Claude Code
+
+```
+/plugin marketplace update shipit
+/plugin update shipit@shipit
+```
+
+The first refreshes the marketplace from GitHub; the second installs what it
+found. Restart the session to load it.
+
+### Codex
+
+```
+codex plugin marketplace upgrade shipit
+```
+
+That refreshes the Git snapshot Codex installs from. If `codex plugin list` still
+reports the old version, install the refreshed one:
+
+```
+codex plugin add shipit@shipit
+```
+
+Either way, start a new session — skills are read at startup.
+
+### OpenCode
+
+```sh
+ROOT=~/.config/opencode/plugins/shipit
+[ -e "$ROOT" ] || git clone https://github.com/KodimTech/shipit "$ROOT"
+"$ROOT"/scripts/install-opencode.sh
+```
+
+The same three lines as the install: the guard skips the clone, the installer
+pulls, and every command is re-linked — including the ones added since you last
+ran it. Export `SHIPIT_ROOT` first if your checkout is not in the default place.
+
+### Did it land?
+
+The new command has to resolve. `/shipit:task` in Claude Code and Codex,
+`/shipit-task` in OpenCode, where `opencode debug config` lists all eight.
 
 ## The cycle
 
