@@ -26,6 +26,9 @@ plugin disabled, so the number reported is a delta, not an absolute.
 | `init-js` | Leaking one ecosystem's conventions into another; writing a contract nothing points at |
 | `plan-collision` | Two parallel worktrees silently planning the same files |
 | `doctor-missing` | Reporting an optional tool as a failure, or installing without consent |
+| `init-ambiguous-tracker` | Guessing a tracker from a branch pattern two adapters share, or writing `none` in a way nothing downstream can distinguish from a real absence |
+| `task-epic-split` | A chain of tickets where only the last one is worth merging; a ticket that does `plan`'s job |
+| `task-no-tracker` | Creating an issue somewhere the repo did not configure, and calling `none` a gap |
 
 Every case targets a rule that, when broken, produces confidently wrong output
 rather than an error. Those are the failures worth paying for a grader to catch.

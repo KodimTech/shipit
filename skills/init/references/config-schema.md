@@ -1,7 +1,7 @@
 # `.sdd/config.json` Schema
 
-The machine contract. Read by `plan`, `implement`, `pr-fix`, `handoff`, `status`,
-and `doctor`. Written only by `init`.
+The machine contract. Read by `task`, `plan`, `implement`, `pr-fix`, `handoff`,
+`status`, and `doctor`. Written only by `init`.
 
 Three values carry meaning, and they are not interchangeable:
 
@@ -33,6 +33,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `commands.*` | string \| null | Never written unverified. See placeholders below |
 | `commands_verified.<key>` | `{exit, at, proof}` | `proof` is the form that ran: `version`, `help`, `dry-run`, `real` |
 | `paths.plans` | string | Default `.sdd/plans` |
+| `paths.tasks` | string | Default `.sdd/tasks`. Where `task` writes ticket drafts. Local scratch — `init` excludes it via `.git/info/exclude` |
 | `paths.rules` | string | Default `.sdd/rules` |
 | `paths.src` | string[] | Roots that hold product code |
 | `paths.tests` | string[] | Roots that hold tests |
@@ -42,9 +43,15 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `tests.kinds` | string[] | Only kinds with ≥1 real file |
 | `tests.coverage_gates_merge` | boolean | Whether coverage can fail the merge |
 | `layers[]` | object[] | `{key, dirs[], test_kind, rule, exemplar}`. May be empty |
-| `tracker.adapter` | `linear` \| `github-issues` \| `jira` \| `none` | Ambiguous → `none` |
+| `tracker.adapter` | `linear` \| `github-issues` \| `jira` \| `shortcut` \| `none` | Detected; asked when detection is undecided. **Never `"unknown"`** — an unresolved ambiguity is written `none` with the key in `unknown[]`, which reads as undetermined, not absent |
 | `tracker.issue_pattern` | string \| null | Regex, for slug and branch parsing |
 | `tracker.branch_from_tracker` | boolean | Adapter can supply the branch name |
+| `tracker.create.supported` | boolean | Whether `task` can create issues: the adapter's mechanism is reachable **and** a target is known. False → `task` still writes the draft |
+| `tracker.create.team` | string \| null \| `"unknown"` | Team, group, or workflow a new issue belongs to. Required by `linear` and `shortcut` |
+| `tracker.create.project` | string \| null \| `"unknown"` | Project or project key. Required by `jira`, optional elsewhere |
+| `tracker.create.initial_state` | string \| null | State name a new issue lands in. Matched by name, never by id |
+| `tracker.create.default_labels` | string[] | Labels applied to every created issue. Only labels the tracker already has |
+| `tracker.create.epic_kind` | string \| null | How this workspace models a parent: `parent-issue`, `epic`, `project`, `task-list` |
 | `graph` | object \| null | `{tool, out, query, path, explain, update}`. Null unless CLI **and** graph exist |
 | `markers.debt` | string | Default `ponytail:` |
 | `companions.*` | `present` \| `absent` | `ponytail`, `graphify_cli`, `graphify_graph`, `caveman` |
@@ -98,6 +105,9 @@ alternative is `worktree.setup`, which regenerates what the worktree needs.
   lack fields; treat absent as `null` — except `sdd_tracking`, whose absence means
   the config predates this field and defaults to `committed`, the original
   behaviour.
+- A `tracker.create` block that is absent means the config predates the field.
+  Treat it as `supported: false` — `task` writes a draft and reports the drift.
+  Never patch the config to add it; that is a re-run of `init`.
 - Never write to this file outside `init`. A skill that wants to change the
   contract reports the drift and lets the user re-run `init`.
 - A command that fails *because it does not exist* means the contract has drifted.

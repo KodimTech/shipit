@@ -23,10 +23,10 @@ codex plugin marketplace add KodimTech/shipit
 codex plugin add shipit@shipit
 ```
 
-Start a new session and the seven skills are available. Codex matches them by
-description, and the same names work as slash commands — `/shipit:plan`,
-`/shipit:init`, `/shipit:implement`, `/shipit:handoff`, `/shipit:pr-fix`,
-`/shipit:status`, `/shipit:doctor` — exactly as in Claude Code. Same `skills/`
+Start a new session and the eight skills are available. Codex matches them by
+description, and the same names work as slash commands — `/shipit:task`,
+`/shipit:plan`, `/shipit:init`, `/shipit:implement`, `/shipit:handoff`,
+`/shipit:pr-fix`, `/shipit:status`, `/shipit:doctor` — exactly as in Claude Code. Same `skills/`
 directory and the same `.sdd/` contract, so a repo initialized in one runtime
 works in the others.
 
@@ -43,7 +43,7 @@ ROOT=~/.config/opencode/plugins/shipit
 "$ROOT"/scripts/install-opencode.sh
 ```
 
-The installer links the seven commands and verifies OpenCode resolves them.
+The installer links the eight commands and verifies OpenCode resolves them.
 Re-run those three lines any time to update — the guard skips the clone, and the
 installer pulls. It never uses sudo, never installs a package, and never edits
 `opencode.json`.
@@ -70,11 +70,13 @@ and keep it exported — the commands read it to find the skills. Uninstall:
 ```
 /shipit:init        read the repo, write .sdd/          once per repo
         │
+/shipit:task        a need becomes a ticket, or an epic  when there is no ticket yet
+        │
 /shipit:plan        plan contract in the current checkout once per task
         │
 /shipit:implement   red/green + validation scoped to the change
         │
-/shipit:handoff     branch, commit, PR, tracker          the only skill with side effects
+/shipit:handoff     issues, branch, commit, PR, tracker  the only skill with side effects
         │
 /shipit:pr-fix      review comments + red CI             as needed
 ```
@@ -86,9 +88,78 @@ Plus two for visibility:
 /shipit:status      every in-flight worktree, its PR, its tracker state
 ```
 
-`plan`, `implement`, and `pr-fix` never run `git commit`, `git push`, a PR command,
-or a tracker write. Only `handoff` does. This is enforced in every skill, so a plan
-can never half-deliver itself.
+## From a need to a ticket
+
+`/shipit:task` is the entry of the cycle, for when the work exists as a sentence in
+Slack and nowhere else. It drafts the ticket against your repo — grounded in real
+paths, not invented ones — shows it to you, and creates it only after you say yes.
+
+```
+/shipit:task "sessions should expire after 30 idle minutes"
+```
+
+One need, one ticket. A need that spans two layers or two shippable outcomes becomes
+an **epic with subtasks** instead — each one mergeable, verifiable, and worth landing
+on its own, capped at seven. `--epic` and `--single` override the call; `--dry-run`
+stops at the draft; `--plan` runs `/shipit:plan` on the issue it just created.
+
+Every ticket is typed **Bug**, **Feature** or **Chore** on the line under the title
+— what triage filters on first — and mapped to whatever your tracker calls that: a
+Shortcut story type, a Jira issue type, a Linear or GitHub label that already exists.
+Anything a person can see also carries **QA steps**: five at most, plain language, no
+terminal commands, so a non-developer can confirm the ticket is done. Work with no
+visible surface gets no such section.
+
+Four things keep it from filling your backlog with noise:
+
+- **A ticket says what and why, never how.** No file list, no commands, no code —
+  that is `plan`'s output, and writing it here fossilises a guess someone will
+  follow.
+- **Short is enforced, not encouraged.** 18 lines for a task, one table row per
+  subtask, one sentence for the outcome. A sentence that would not change what
+  someone does gets cut.
+- **Blocking ambiguity stops the draft.** Scope, security, or data left open means
+  the question goes to you, not into the backlog for the next person to re-open.
+- **The draft is confirmed before it is created**, every time. There is no flag that
+  skips it.
+
+The draft lands at `.sdd/tasks/<slug>.md` and is excluded from git in both tracking
+modes — once the issue exists, the tracker is the source of truth, and a stale copy
+in the repo is worse than none. Re-running the delivery on a draft that already
+carries ids creates nothing: the `Created` block is the idempotency ledger, which is
+what makes a half-finished epic safe to retry.
+
+### Trackers
+
+| Adapter | Reached through | An epic is | Bug/Feature/Chore maps to |
+| --- | --- | --- | --- |
+| `linear` | Linear MCP | a parent issue with sub-issues | an existing team label |
+| `jira` | Jira MCP | the project's `Epic` type, enumerated first | the issue type |
+| `shortcut` | Shortcut MCP | a native Epic | the story type, exactly |
+| `github-issues` | `gh` | a parent issue with a task list | an existing repo label |
+| `none` | — | — the draft is the deliverable | — |
+
+`init` detects which one you use, and asks only when it genuinely cannot tell —
+`ENG-412` is a valid Linear id *and* a valid Jira key, so a branch name alone never
+decides between those two; a connected MCP does. A clean match asks nothing, and a
+repo with no tracker at all is not a question either. `/shipit:init --tracker linear`
+sets it outright, for CI or to correct a bad detection without hand-editing JSON.
+
+An ambiguity nobody resolves is recorded as `none` **and** listed in `unknown[]`, so
+it reads as undetermined rather than absent — the distinction that decides whether
+`/shipit:task` failing to create anything is expected or a misdetection.
+
+With the adapter settled and its MCP connected, `init` also picks up which team or
+project new issues belong to, asking only when there is more than one. Unreachable
+tracker → `create.supported` goes `false`, `task` still writes the draft, and
+`doctor` says what is missing. States, labels, transitions and
+issue types are always enumerated from your workspace and matched by name; an id
+copied from someone else's workspace writes to the wrong place, silently.
+
+`task`, `plan`, `implement`, and `pr-fix` never run `git commit`, `git push`, a PR
+command, or a tracker write. Only `handoff` does. This is enforced in every skill, so
+a plan can never half-deliver itself, and a draft ticket never reaches your team's
+backlog without you saying yes.
 
 ## The `.sdd/` contract
 
@@ -102,6 +173,9 @@ can never half-deliver itself.
 | `.sdd/conventions.md` | agents | Patterns this repo follows, each with an exemplar |
 | `.sdd/rules/<layer>.md` | agents | Layer rules derived from real files |
 | `.sdd/rules/tests/<kind>.md` | agents | Test shape, extracted from a real test |
+
+Plus `.sdd/tasks/`, where `/shipit:task` writes ticket drafts. It is scratch, not
+contract: excluded from git in both tracking modes.
 
 `init` asks once, per repo, how it should be tracked:
 
@@ -196,7 +270,7 @@ Run `/shipit:doctor` for your machine's actual state.
 | Tier | What | Without it |
 | --- | --- | --- |
 | **0 — required** | `git` | shipit does not run. That is the whole tier. |
-| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot reach GitHub. Planning and implementing are unaffected. |
+| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot reach GitHub or your tracker. `task` still drafts, `plan` and `implement` are unaffected. |
 | **2 — accelerators** | graphify CLI + graph; caveman | Discovery falls back to `rg`. Same answers, more tokens. |
 | **3 — do not enable during a cycle** | the ponytail plugin | Nothing. The useful part is already vendored here. |
 
@@ -254,13 +328,16 @@ extracted from:
 | `init` | ~90 | ~1.7k | new |
 | `doctor` | ~90 | ~1.4k | new |
 | `status` | ~70 | ~1.2k | new |
+| `task` | not yet measured | not yet measured | new |
 
 The four equivalent skills cost **~380 always-on against the originals' ~442**, and
 the two heaviest got materially cheaper per invocation — the contract removed the
 stack re-discovery that used to live in their bodies.
 
-Total always-on is **~629 vs ~442**, because there are three more skills. That is the
-honest trade: +187 tokens per session buys `init`, `doctor`, and `status`. If it is
+Total always-on was **~629 vs ~442** at seven skills, because there were three more
+of them. That is the honest trade: +187 tokens per session bought `init`, `doctor`,
+and `status`. `task` is the eighth and has not been measured yet — expect its
+always-on description to cost about the same as the others, roughly +90. If that is
 not worth it for your setup, disable the plugin per-project rather than working around
 it.
 
@@ -277,7 +354,7 @@ replaced by a scoped subgraph. Measure that with
 | `sdd-implementation` | `/shipit:implement` |
 | `sdd-pr-fix` | `/shipit:pr-fix` |
 | `sdd-handoff` | `/shipit:handoff` |
-| — | `/shipit:init`, `/shipit:doctor`, `/shipit:status` |
+| — | `/shipit:init`, `/shipit:task`, `/shipit:doctor`, `/shipit:status` |
 | Conventions hardcoded in the skill | `.sdd/`, generated from your repo |
 | `.claude/plans/` | `<paths.plans>`, default `.sdd/plans/` |
 

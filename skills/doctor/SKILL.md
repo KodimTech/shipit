@@ -39,8 +39,13 @@ lose rather than implying breakage.
    `{path}`, what `sdd_tracking` is set to, and does a `<!-- shipit:contract -->`
    block exist in `AGENTS.md` and in `CLAUDE.md` (a symlink between the two counts
    as one hit, not a gap).
-3. Print the report below.
-4. `--fix` → show what will run, ask once, then invoke the script with `--yes`.
+3. Add the two tracker rows. The script checks executables and a tracker is not
+   one — these come from `tracker.adapter` and `tracker.create` in the config, plus
+   whether that adapter's mechanism is connected in this session. Say which of the
+   two sources each half came from; never report an MCP as connected without having
+   seen it in the session.
+4. Print the report below.
+5. `--fix` → show what will run, ask once, then invoke the script with `--yes`.
    Re-run step 1 afterwards and print the new state.
 
 ## Report format
@@ -49,6 +54,7 @@ lose rather than implying breakage.
 tier 0  git                 ok       2.51.0
 tier 1  gh                  ok       authenticated as <login>
         tracker             linear   MCP connected
+        tracker create      ok       team Engineering · state Backlog
 tier 2  graphify cli        ok       ~/.local/bin/graphify
         graphify graph      missing  → graphify .        cost: minutes + tokens
         graph in worktree   n/a      symlinked from main checkout
@@ -75,6 +81,7 @@ reading this should know whether they can proceed, in one line.
 | `git` | shipit cannot run. Only real blocker. |
 | `gh` | `handoff` cannot open or update PRs. Planning and implementing are unaffected. |
 | tracker `none` | No issue comments, no status transitions. Everything else works. |
+| `tracker.create.supported` false | `task` drafts the ticket and stops there. Nothing else changes — and with adapter `none` this is the expected state, not a gap. |
 | graphify CLI | Discovery falls back to `rg`/`git grep`. Same answers, more tokens. |
 | graphify graph | Same as above — having the CLI without a graph changes nothing. |
 | caveman | Chat prose and reports stay long. Note that shipit keeps PR bodies and reports short on its own, and exempts non-developer QA steps from compression either way. |
