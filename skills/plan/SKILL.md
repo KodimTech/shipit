@@ -71,7 +71,9 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 ## Workflow
 
 1. **Preflight.** Load `.sdd/config.json`. Parse the request: goal, acceptance
-   criteria, out-of-scope, layers touched. Derive the slug.
+   criteria, out-of-scope, layers touched. Derive the slug. A `task` draft at
+   `<paths.tasks>/<slug>.md` is a valid request source — read it instead of asking
+   the user to restate it, and take the issue id from its `## Created` block.
 2. **Worktree — skip unless opted in.** A `--worktree` / `--no-worktree` flag in the
    request wins over the config; otherwise read `worktree.enabled`. Off (the
    default), key absent, or not a git repo → plan in the current checkout, skip step

@@ -1,37 +1,44 @@
 ---
 name: handoff
-description: Use when shipit artifacts must be delivered — branch, commit, push, pull request, review-thread replies, tracker comment, status transition. Runs after `plan`, `implement`, or `pr-fix`. Do not use to write plans or product code.
+description: Use when shipit artifacts must be delivered — branch, commit, push, pull request, review-thread replies, tracker comment, status transition, or creating the issues a `task` draft describes. Runs after `task`, `plan`, `implement`, or `pr-fix`. Do not use to write plans, tickets, or product code.
 metadata:
   writes_product_code: false
 ---
 
 # shipit handoff
 
-Owns every external side effect, so `plan`, `implement`, and `pr-fix` own none.
-They produce artifacts; this skill delivers them.
+Owns every external side effect, so `task`, `plan`, `implement`, and `pr-fix` own
+none. They produce artifacts; this skill delivers them.
 
-Three modes: `plan` (after a plan is written), `implementation` (after a change is
-verified), `review` (after PR feedback is resolved). Ask which one when it is not
-given and the branch does not make it obvious.
+Four modes: `task` (after a ticket draft is written), `plan` (after a plan is
+written), `implementation` (after a change is verified), `review` (after PR feedback
+is resolved). Ask which one when it is not given and the branch does not make it
+obvious.
 
-`implement` and `pr-fix` invoke this skill themselves once validation is green,
-passing their report. Being invoked that way changes nothing: run the same
-preflight, and trust the report for **content** only — never for whether the side
-effects already happened. They have not. This skill is the only thing that performs
-them.
+`task`, `implement` and `pr-fix` invoke this skill themselves — the first after the
+user confirms the draft, the other two once validation is green — passing their
+report. Being invoked that way changes nothing: run the same preflight, and trust the
+report for **content** only — never for whether the side effects already happened.
+They have not. This skill is the only thing that performs them.
 
 ## Context budget
 
-- Required: `.sdd/config.json` (for `tracker` and `repo`), and the report or plan
-  being delivered.
+- Required: `.sdd/config.json` (for `tracker` and `repo`), and the report, plan, or
+  task draft being delivered.
 - Required: `references/tracker-adapters.md` — only the section for the configured
-  adapter.
+  adapter. `task` mode also needs its `### Create` subsection; the other modes do
+  not.
 - Optional: `references/worktree-lifecycle.md` when the branch lives in a worktree.
 - Never read the product diff to decide content. The report is the manifest.
 
 ## Hard rules
 
-- Never write product code. Never edit a plan. Delivery only.
+- Never write product code. Never edit a plan. Delivery only. **One exception, in
+  `task` mode only:** the `## Created` block of the draft being delivered is
+  appended to with the ids that were created. Append-only, that block only —
+  nothing else in the file is touched, and no other mode edits its input at all.
+- **`task` mode does no git.** No branch, no staging, no commit, no push, no PR. It
+  is the one mode with no git side. A ticket exists before a branch does.
 - **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - **Stage by explicit path.** Never `git add -A`, never `git add .`.
 - **`sdd_tracking: local` excludes every `.sdd/*` path from staging**, in every
@@ -58,6 +65,9 @@ them.
 
 ## Preflight — all modes
 
+`task` mode runs steps 5 and 6 only. It touches no branch, no remote, and no
+existing issue, so the rest has nothing to check.
+
 1. `git status`, current branch, remote. `gh auth status` when the host is GitHub.
 2. Read `sdd_tracking` from `.sdd/config.json` (absent → `committed`). Local →
    no path under `.sdd/` is ever staged, in any mode; see Hard rules.
@@ -69,6 +79,36 @@ them.
 5. Confirm the artifacts to deliver exist on disk.
 6. Any check fails → stop and report what is missing. Produce **no** partial side
    effects. Half a handoff is worse than none.
+
+## Mode: task
+
+Input: a `task` draft at `<paths.tasks>/<slug>.md`, already confirmed by the user.
+`task` asks; this skill does not ask again.
+
+- **Create** — one issue for a `task` draft. For an `epic` draft, the parent and one
+  issue per `Subtasks` row, linked by the adapter's parent field, **in the order
+  that adapter's `### Create` specifies** — most want the parent first, GitHub needs
+  the children first. Title, body, labels and estimate come from the draft
+  **verbatim** — never re-worded, never expanded with a section the draft did not
+  have. The draft's type maps to the adapter's issue type, story type, or existing
+  label; no mapping available → say the type went unmapped, never invent a label.
+- **Idempotency** — read the draft's `## Created` block first and skip every entry
+  already listed. Re-running on a delivered draft creates nothing. This is what
+  makes retrying a partial delivery safe rather than duplicating a backlog.
+- **Record** — append each created issue to `## Created` as
+  `- #<local n or "parent"> — <ISSUE-ID> — <url>`, immediately after each creation,
+  not in one batch at the end. A crash between two creations must still leave the
+  ledger true.
+- **Partial failure** — child 3 of 5 fails: the two already created stay recorded,
+  the report is `partial`, and it names the exact failing call. Never delete a
+  created issue to "clean up" — say what exists and that a re-run creates only the
+  rest.
+- **Status** — new issues land in `tracker.create.initial_state`. No transition
+  afterwards: nothing has started.
+- **Comment** — none. The body already carries everything.
+- **Blocked** — `tracker.create.supported` false, adapter `none`, or the adapter's
+  mechanism unavailable → create nothing and report `n/a (adapter: none)` or
+  `blocked: <the missing capability>`. The draft stays on disk and stays valid.
 
 ## Mode: plan
 
@@ -128,6 +168,8 @@ One line per side effect, each marked `completed`, `partial`, or `blocked`, with
 exact reason for anything short of completed. No preamble, no summary paragraph, no
 recap of the change — a `completed` line needs no explanation:
 
+- Issues created — `task` mode, one line per issue: local number, id, url. Plus the
+  ones skipped as already present in `## Created`.
 - Branch.
 - Commit hash, and the files staged — plus any `.sdd/*` path excluded because
   tracking is local.

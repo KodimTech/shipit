@@ -116,16 +116,85 @@ only what the exemplar demonstrates.
 
 ## 7 — Tracker adapter
 
+`--tracker <adapter>` in the request settles this outright: write it, skip the
+table, skip the question.
+
 | Evidence | Adapter |
 | --- | --- |
 | Linear MCP tools available in session, or `[A-Z]{2,5}-\d+` in recent branch names | `linear` |
 | `.github/ISSUE_TEMPLATE/`, `gh` present, issues referenced as `#\d+` in commits | `github-issues` |
 | Jira MCP, or `[A-Z]+-\d+` with a Jira URL in the repo | `jira` |
+| Shortcut MCP, or `sc-\d+` in recent branch names, or an `app.shortcut.com` URL in the repo | `shortcut` |
 | None of the above | `none` |
 
-Record `issue_pattern` and whether the adapter can supply a branch name
-(`branch_from_tracker`). Ambiguous between two → `none`, and say why in the
-report. A wrong adapter makes `handoff` write to the wrong place.
+**A connected MCP outranks a pattern.** `[A-Z]{2,5}-\d+` and `[A-Z]+-\d+` match the
+same branch names — `ENG-412` is a valid Linear id and a valid Jira key — so the
+regex alone never decides between those two. One tracker's MCP connected and not the
+other's is decisive. Both connected, or neither, and the patterns tie: that is a real
+ambiguity, not a coin to flip.
+
+Then, by outcome:
+
+| Outcome | Action |
+| --- | --- |
+| Exactly one row matches | Write it. No question |
+| Two or more rows match, and no connected MCP breaks the tie | `"unknown"` → **ask** |
+| No row matches, and no tracker MCP is connected | `none`. No question — this repo has no tracker, which is a valid configuration |
+| No row matches, but a tracker MCP **is** connected | `"unknown"` → **ask**. The session has a tracker the patterns did not see |
+
+The question, when it happens: state what was found and what it was ambiguous
+between, list the candidates plus `none`, and let the user pick. Ask once.
+
+Declined, or "none of these" → write `none`, append `tracker.adapter` to `unknown[]`,
+and say in the report that the adapter is undetermined rather than absent. **Never
+persist `"unknown"` in `tracker.adapter`** — the consumers read that key as an enum,
+and `unknown[]` is where the uncertainty is recorded.
+
+Then record `issue_pattern` and whether the adapter can supply a branch name
+(`branch_from_tracker`). `linear` and `shortcut` supply one; `jira` and
+`github-issues` do not.
+
+Why this is asked rather than guessed: a wrong adapter makes `handoff` write to the
+wrong place, and a wrongly-quiet `none` makes `/shipit:task` unable to create
+anything — silently, since `none` is also the legitimate answer for a repo with no
+tracker at all. One question is cheaper than either failure.
+
+## 7b — Tracker create target
+
+Only when recipe 7 landed on something other than `none`, **and** that adapter's
+mechanism is reachable in this session (see
+`../../handoff/references/tracker-adapters.md` for which mechanism each one uses).
+Not reachable → write `create.supported: false` and move on. Ask nothing: a
+question about a tracker nobody can reach wastes the user's turn.
+
+Reachable → enumerate, then fill the target:
+
+| Adapter | Enumerate | Required target |
+| --- | --- | --- |
+| `linear` | teams | `create.team` |
+| `shortcut` | groups / workflows | `create.team` |
+| `jira` | projects | `create.project` |
+| `github-issues` | — the repo is the target | neither |
+
+- Exactly one result → write it. No question.
+- More than one → **ask once**, listing them. This and the § 7 adapter question are
+  both conditional; a repo with an obvious tracker and a single team is asked
+  neither.
+- The user declines to choose → `"unknown"`, appended to `unknown[]`, and
+  `create.supported: false`. `task` then writes drafts and says why it stopped
+  there.
+
+Then, with the target known:
+
+- `create.initial_state` — the target's first unstarted state, by name. None
+  identifiable → `null`.
+- `create.default_labels` — `[]` unless the repo's existing issues show a label
+  applied to effectively all of them. Never invent a scheme.
+- `create.epic_kind` — from the adapter: `parent-issue` (`linear`), `epic`
+  (`shortcut`), the project's Epic issue type (`jira`), `task-list`
+  (`github-issues`). The adapter's `### Create` section owns the detail.
+- `create.supported` — `true` only when the mechanism was reachable **and** every
+  required target for that adapter is a real value.
 
 ## 8 — Graph
 

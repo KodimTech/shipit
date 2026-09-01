@@ -1,0 +1,110 @@
+---
+name: task
+description: Use when a need, idea, bug report or request must become a tracker ticket — typed bug, feature or chore, as a single task or an epic split into independently shippable subtasks — drafted short against the repo's own `.sdd/` contract. Do not use to design the implementation — that is `plan` — and it never writes to the tracker itself; `handoff` does.
+metadata:
+  input: request
+  output: sdd-task-draft
+  writes_product_code: false
+---
+
+# shipit task
+
+Turn a need into a ticket someone can pick up without asking what it means. This is
+the entry of the cycle: `task` produces the ticket, `plan` turns it into a contract,
+`implement` executes it.
+
+A ticket answers **what** and **why**, in as few lines as that takes. The **how** is
+`plan`'s, and writing it here means writing it twice — once against a repo you only
+skimmed, once properly.
+
+This skill ends at the draft on disk. Creating the issue is a side effect, and side
+effects belong to `handoff`.
+
+## Context budget
+
+- Required: the request, and `.sdd/config.json` — the `tracker` and `paths` blocks.
+- Required: `references/output-contract.md`. It owns sections, size budget, and
+  prohibited output; this file does not restate it.
+- Required in epic mode only: `references/split-policy.md`. Single-task mode must
+  not read it.
+- Optional, only when an uncertainty surfaces:
+  `../plan/references/ambiguity-policy.md`, relative to this skill directory. Same
+  two categories, not restated here.
+- Never: `.sdd/rules/*`, `.sdd/stack.md`, a whole graph report, the plan template.
+  A ticket that needs a layer rule to be written is a plan in disguise.
+- No `.sdd/` at all → stop and say: run `/shipit:init` first. Do not detect the
+  tracker inline; that is `init`'s job.
+
+## Hard rules
+
+- **No product code, no file plan, no verification commands.** Naming the files to
+  touch is `plan`'s output, and doing it here fossilises a guess into the backlog.
+- **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
+- **No external side effects.** No git, no PR, no tracker write. The draft file is
+  the whole deliverable.
+- **Confirm before delivering.** A created ticket is visible to the whole team and
+  awkward to retract. Show the finished draft, ask once, and invoke `handoff` only
+  on an explicit yes. There is no flag that skips this.
+- **Acceptance criteria are observable from outside the code.** "Returns a 422" is a
+  criterion; "adds a validation to the model" is an implementation detail wearing a
+  criterion's clothes.
+- **State the type — `Bug`, `Feature`, or `Chore` — on the line under the title.**
+  It is what triage filters on first, and a type left to be inferred from the prose
+  gets sorted wrong. Each subtask carries its own.
+- **Short is the default.** 18 lines for a single task, one table row per subtask.
+  A sentence that would not change what someone does is cut, not shortened.
+- **Anything a person can see gets `QA steps`** — five at most, plain language, no
+  commands and no paths. It is how a non-developer confirms the ticket is done.
+  Nothing visible to a person → no section at all.
+- **Grounding is bounded**: one graph query or two `rg` passes, and at most three
+  files opened. Enough to name the affected area and what it does today, with
+  `path:line`. Anything more is `plan` running early on the wrong budget.
+- Ambiguity that blocks scope, security, or data → stop with `Blockers`. A ticket
+  carrying a blocking unknown is backlog noise that someone else has to re-open.
+  Everything else → `Assumptions`, with the default already taken.
+- `tracker.create.supported` false, or adapter `none` → write the draft anyway and
+  report the tracker lines as `n/a`, never `blocked`. No tracker is a configuration.
+- Never write to `.sdd/config.json`. A missing `tracker.create` block means the
+  config predates it: report the drift and suggest `/shipit:init`, do not patch it.
+
+## Workflow
+
+1. **Preflight.** Load `.sdd/config.json`. Read `tracker.adapter` and
+   `tracker.create`. Derive the slug from the need — no issue id exists yet.
+2. **Shape.** Single task by default. Epic when the need spans two or more entries
+   of `layers[]`, or describes two or more user-visible outcomes that could ship on
+   different days. `--epic` and `--single` override the heuristic.
+3. **Grounding.** Bounded discovery per the rule above. Name the area and the
+   current behaviour. Stop when the problem statement can cite something real.
+4. **Draft.** Fill `assets/task-template.md`. Decide the type from the problem, and
+   include `QA steps` only when the change has a surface someone can look at.
+5. **Split gate** — epic only. `references/split-policy.md` owns the caps and the
+   independence test. A split that fails it is reported, not shipped.
+6. **Ambiguity.** Blocking → stop at the draft with `Blockers` and skip step 8.
+   Otherwise → `Assumptions` with the default taken.
+7. **Write.** `<paths.tasks>/<slug>.md` (default `.sdd/tasks`). Drafts are local
+   scratch; once created, the tracker is the source of truth.
+8. **Confirm and deliver.** Show the draft. On an explicit yes, invoke `handoff` in
+   `task` mode with the draft path. `--dry-run` stops here.
+9. **Self-check.** Run `output-contract.md`'s checks as checks. Never emit the
+   checklist into the draft.
+
+## Flags
+
+- `--epic` / `--single` — force the shape instead of deriving it.
+- `--dry-run` — stop at the draft. Nothing is created, nothing is asked.
+- `--plan` — after creation, run `/shipit:plan` on the new issue. In epic mode it
+  targets **the first subtask only**; planning five tickets in one turn is a token
+  bomb, and four of the five plans go stale before anyone reads them.
+
+## Final report
+
+- Draft path, and the shape — `task`, or `epic` with the subtask count.
+- Adapter, and whether `tracker.create.supported` is true. False or `none` → one
+  line saying the draft is the deliverable and how to create the issue by hand.
+- Blockers, or assumptions taken.
+- `handoff`'s report, appended verbatim. Never re-summarise it.
+- Next: `/shipit:plan <ISSUE-ID>`.
+
+Do not claim a ticket was created. This skill ends at the draft; `handoff` says what
+reached the tracker.

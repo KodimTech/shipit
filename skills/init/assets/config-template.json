@@ -1,5 +1,5 @@
 {
-  "shipit_version": "0.5.0",
+  "shipit_version": "0.6.0",
   "generated_at": "YYYY-MM-DD",
   "sdd_tracking": "committed",
   "repo": {
@@ -31,6 +31,7 @@
   "commands_verified": {},
   "paths": {
     "plans": ".sdd/plans",
+    "tasks": ".sdd/tasks",
     "rules": ".sdd/rules",
     "src": [],
     "tests": []
@@ -46,7 +47,15 @@
   "tracker": {
     "adapter": "none",
     "issue_pattern": null,
-    "branch_from_tracker": false
+    "branch_from_tracker": false,
+    "create": {
+      "supported": false,
+      "team": null,
+      "project": null,
+      "initial_state": null,
+      "default_labels": [],
+      "epic_kind": null
+    }
   },
   "graph": null,
   "markers": {

@@ -90,12 +90,21 @@ two happened in the report.
 - **The pointer never overwrites an agent doc.** Everything outside the
   `<!-- shipit:contract -->` markers belongs to the user and is left byte-identical.
   The pointer links to the contract; it never restates a fact from it.
+- **The tracker adapter is detected, and asked only when detection is genuinely
+  undecided** — two candidates with no connected MCP to break the tie, or a tracker
+  MCP connected that no pattern matched. A clean match asks nothing. Ambiguity is
+  never resolved by picking the likelier one: a wrong adapter writes to the wrong
+  place, and a wrongly-quiet `none` makes `task` unable to create anything.
 - **`language` is asked, never detected.** The language a repo's docs are written
   in does not imply the language its owner wants shipit to write in. Ask once,
   default `en`, record it in `language`.
 - **`sdd_tracking` is asked once.** First `init` only, before anything is written.
   Refresh reads the recorded value and never re-asks except on a discrepancy
   against real git state.
+- **Ticket drafts are never committed.** `<paths.tasks>` (default `.sdd/tasks/`)
+  is appended to `.git/info/exclude` in **both** tracking modes. A draft is scratch
+  that stops being true the moment `handoff` creates the issue; the tracker is the
+  source of truth from then on, and a stale copy in the repo is worse than none.
 - **Local tracking uses `.git/info/exclude`, never `.gitignore`.** `.gitignore` is
   itself a shared, committed file — writing to it to keep something "local" is a
   contradiction. `.git/info/exclude` lives under `.git/`, is never committed, and
@@ -125,9 +134,15 @@ two happened in the report.
 6. **Verify commands.** Run each candidate command. Green → write it. Red or absent → `null` plus `unknown[]`. Record the result in `commands_verified`.
 7. **Derive layers.** From real directories, with one exemplar each. No fixed list of layer names.
 8. **Derive test rules.** One real test per kind, reduced to its shape.
-9. **Detect tracker and companions.** Adapter and tier status. No installs.
+9. **Detect tracker and companions.** Adapter per `references/detection-recipes.md
+   § 7` — asked only when detection is undecided — then the create target per § 7b,
+   asked only when the tracker is reachable and offers more than one target. Both
+   questions are conditional; a repo with an obvious tracker is asked neither. Then
+   companion tier status. No installs.
 10. **Write.** `config.json` from `assets/config-template.json`; the markdown files from their templates in `assets/`.
 11. **Point at it.** Write the pointer block per *Discovery pointer* above, then link or append `CLAUDE.md`.
+    Append `<paths.tasks>` to `.git/info/exclude` if nothing already covers it —
+    check with `git check-ignore -q` first, in both tracking modes.
 12. **Self-check.** Every `.md` line has evidence. Every non-null command has a `commands_verified` entry. `unknown[]` matches what was actually left undetermined. The pointer exists exactly once per file. Fix before reporting.
 
 ## Refresh mode
@@ -150,11 +165,20 @@ two happened in the report.
   reported and asked again, same as a hand-edited file.
 - `language` is a human decision, not a detection: keep the recorded value, never
   re-ask. `--language` overrides it; a config predating the field gets `en`.
+- `tracker.adapter` is kept as recorded and never re-asked. `--tracker` overrides it.
+  The one exception: detection now contradicts the recorded value with a connected
+  MCP — report that as a discrepancy and ask, the same as a hand-edited file. A
+  recorded `none` that sits in `unknown[]` is re-offered once when a tracker MCP is
+  connected this time; a `none` that was a clean detection is left alone.
 - Report what changed, what was kept, and what became `unknown` since last run.
 
 ## Flags
 
 - `--language <tag>` — set `language` without asking. For CI and re-runs.
+- `--tracker <adapter>` — set `tracker.adapter` without detecting or asking:
+  `linear`, `github-issues`, `jira`, `shortcut`, or `none`. For CI, and for
+  correcting a detection in one command instead of hand-editing `config.json`. An
+  unrecognised value is rejected, not coerced — `init` never invents an adapter.
 - `--with-companions` — print the exact install commands, state what each one
   grants (ponytail ships session hooks; `uv tool install` downloads from PyPI),
   ask once, then run `scripts/companions.sh --yes`. Never builds a graph.
@@ -172,7 +196,13 @@ two happened in the report.
 - Commands verified, with the exit code each returned.
 - **`unknown[]`, listed loudly.** Silence here is what poisons every later plan.
 - Layers found, with their exemplars.
-- Tracker adapter, and why.
+- Tracker adapter, and where it came from: detected (with the evidence), asked
+  (with what was ambiguous), or `--tracker`. A `none` that came from an unresolved
+  ambiguity is reported as undetermined and appears in `unknown[]` — never as
+  "this repo has no tracker".
+- Whether `task` can create issues: the mechanism's state and the target it will
+  create into. `create.supported: false` → say what is missing, in one line.
 - Companion tiers, in `doctor`'s format.
 - Any place an agent doc contradicted the repo.
-- Next step: `/shipit:plan`.
+- Next step: `/shipit:task` for a need with no ticket yet, `/shipit:plan` for one
+  that has.

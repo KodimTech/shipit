@@ -1,10 +1,12 @@
 # Tracker Adapters
 
 Read only the section for `tracker.adapter` in `.sdd/config.json`. The others are
-noise.
+noise. Within a section, `### Create` is needed by `task` mode only — skip it in the
+other three.
 
-Every adapter answers the same four questions: what branch name, what comment, what
-status transition, and what counts as terminal.
+Every adapter answers the same five questions: what tool reaches it, what branch
+name, what comment, what status transition, and what counts as terminal. Plus how it
+models a parent, for anyone creating an epic.
 
 ## Universal rules
 
@@ -14,14 +16,28 @@ status transition, and what counts as terminal.
   per adapter. When in doubt, leave the status alone and say so.
 - **Never invent a branch prefix.** Either the adapter supplies the name, or
   `.sdd/conventions.md` has the repo's shape, or you ask.
+- **Enumerate, never hardcode.** States, transitions, issue types, teams, labels:
+  ask the tracker what it has and match by name. An id copied from another
+  workspace writes to the wrong place, silently.
 - An unavailable tracker is `partial`, never a silent skip. Name the failing call.
-- QA steps are copied **verbatim** into tracker comments. They were written for
-  someone who does not read code.
+- **Name the missing capability, not the tool.** "Linear MCP not connected" is
+  actionable; "tracker unavailable" is not.
+- QA steps are copied **verbatim**, into a tracker comment or into a created
+  issue's body. They were written for someone who does not read code.
+- **The draft's type maps to whatever this tracker calls it** — an issue type, a
+  story type, or a label. No native concept → a label, and only one that already
+  exists. Never introduce a `bug`/`feature` label scheme a repo does not have; say
+  the type went unmapped instead.
 - Everything else in a comment is one line: summary, validation result, PR link. No
   file list, no diff narration, no restating the ticket back to the person who wrote
   it.
 
 ## `linear`
+
+**Mechanism:** the Linear MCP server, in this session. The capabilities used are
+list teams, list workflow states, get issue, create issue, create comment, and
+update issue status. Not connected → stop and report which of those was needed.
+There is no CLI fallback; do not construct API calls by hand.
 
 Branch: fetch the issue and use its own `gitBranchName` — Linear's convention,
 `<username>/<issue-id>-<slug>` lowercase. Unavailable → stop and report rather than
@@ -46,7 +62,33 @@ mode. None in review mode.
 Terminal / do not downgrade: `In Progress`, `Code Review`, `Ready for QA`,
 `Accepted`, `Deployed`, `Canceled`, `Duplicate`, or that workspace's equivalents.
 
+### Create
+
+Target: `tracker.create.team` is required — Linear issues belong to a team, not to a
+workspace. `tracker.create.project` is optional and attaches the issue to a project.
+
+| Draft field | Goes to |
+| --- | --- |
+| Title | issue title |
+| Type | the team's `Bug` / `Feature` / `Chore` label — Linear has no issue types. Absent → leave unmapped and say so |
+| Problem + Outcome + Acceptance criteria + QA steps + Out of scope | issue description, markdown as written |
+| `Labels / estimate` labels | labels, only ones the team already has |
+| `Labels / estimate` size | estimate, only when the team has estimates enabled |
+
+State: `tracker.create.initial_state`, matched by name against the team's workflow
+states. No match → use the team's default `Backlog`-type state and say so.
+
+Epic: a parent issue with sub-issues. Create the parent, then each child with
+`parentId` set to it. Linear has no separate epic type — `tracker.create.epic_kind`
+is `parent-issue`. Where the workspace uses Projects for this instead, the config
+says `project`, and the children are created into a new project rather than under a
+parent.
+
 ## `github-issues`
+
+**Mechanism:** the `gh` CLI. The only adapter that is not an MCP.
+`gh auth status` failing is the same class of failure as a disconnected MCP: report
+it, create nothing.
 
 Branch: no tracker-supplied name. Use `.sdd/conventions.md`, else
 `<user>/<issue-number>-<slug>`.
@@ -67,11 +109,41 @@ Transitions: GitHub issues have open/closed and optionally a Project field.
 
 Terminal: `closed`.
 
+### Create
+
+`gh issue create --title <...> --body <...>`, plus `--label` per label that already
+exists in the repo (`gh label list` first — `gh` fails the whole call on an unknown
+label) and `--project` when `tracker.create.project` is set. The body carries
+`Problem`, `Outcome`, `Acceptance criteria`, `QA steps` and `Out of scope` as
+written.
+
+Type: the repo's own label — `bug`, `enhancement`, `chore`, or whatever it uses.
+`gh label list` decides; a repo without a matching label gets none, and the report
+says the type went unmapped. GitHub has no issue types.
+
+Epic: GitHub has no parent field. Create the children first, then the parent with a
+task list in its body:
+
+```md
+- [ ] #<child-1>
+- [ ] #<child-2>
+```
+
+This is the one adapter where children come first — the parent body needs their
+numbers. Record all of them in `## Created` as they are made, parent last.
+
+State: issues open on creation. `tracker.create.initial_state` applies only when a
+Project status field exists; otherwise it is `null` and nothing is set.
+
 ## `jira`
 
 > **Written from the API contract, not verified against a live instance.** Treat the
 > exact field and transition names as unconfirmed: list the available transitions
 > before choosing one, and report if they do not match what is described here.
+
+**Mechanism:** the Jira MCP server, in this session. Capabilities used: list issue
+types, list transitions, get issue, create issue, add comment, transition issue.
+Not connected → report which one was needed.
 
 Branch: Jira supplies no branch name. Use `.sdd/conventions.md`, else
 `<user>/<ISSUE-KEY>-<slug>`. Keep the key uppercase — Jira's smart-commit and branch
@@ -88,9 +160,76 @@ first**, then pick by name, never by a hardcoded id:
 
 Terminal: anything in a `Done` status category.
 
+### Create
+
+Target: `tracker.create.project` is required — the project key. Issue types are
+per-project, so **enumerate them before choosing**: a project without a `Task` type,
+or with a renamed one, is common and hardcoding the name fails the create call.
+
+| Draft field | Goes to |
+| --- | --- |
+| Title | summary |
+| Type | the issue type — `Bug`, `Story`/`Task`, `Task` for a chore. **Enumerate the project's types and match by name**; they are renamed often |
+| Problem + Outcome + Acceptance criteria + QA steps + Out of scope | description |
+| `Labels / estimate` labels | labels |
+
+Epic: the project's `Epic` issue type when it has one, with children linked by the
+parent field (`parent` on modern instances, the epic-link custom field on older
+ones — read what the create metadata offers rather than assuming). No `Epic` type
+available → report it and create flat issues instead of inventing a hierarchy.
+
+State: a new issue lands in its workflow's first status. Setting a different
+`initial_state` needs a transition immediately after creation — do it only when
+`tracker.create.initial_state` is set and the transition is available by name.
+
+## `shortcut`
+
+**Mechanism:** the Shortcut MCP server, in this session. Capabilities used: list
+workflows and workflow states, get story, create story, create epic, create comment,
+update story state. Not connected → report which one was needed.
+
+Branch: Shortcut supplies a branch name per story — use it, the same way Linear's
+`gitBranchName` is used. `branch_from_tracker` is `true` for this adapter.
+
+`issue_pattern`: `sc-\d+`.
+
+Comment: a comment on the story, same content as the Linear sections.
+
+Transitions: workflow states belong to a workflow, and a team may have its own.
+Enumerate the states of the story's workflow and match by name — never by id, which
+differs per workspace. Shortcut also types each state as `unstarted`, `started` or
+`done`; use the type when the name does not match.
+
+- `plan` mode → the first `unstarted` state past the backlog one, e.g. `Ready for
+  Development`.
+- `implementation` mode → the review state, e.g. `Ready for Review`.
+- `review` mode → none.
+
+Terminal / do not downgrade: any state typed `done`, plus anything already `started`
+past this point. Archived stories are terminal too — never write to one.
+
+### Create
+
+Target: `tracker.create.team` is the group or workflow the story belongs to.
+`tracker.create.project` is optional.
+
+| Draft field | Goes to |
+| --- | --- |
+| Title | story name |
+| Type | story type, natively: `bug`, `feature`, `chore`. The one adapter where the mapping is exact |
+| Problem + Outcome + Acceptance criteria + QA steps + Out of scope | description |
+| `Labels / estimate` labels | labels |
+| `Labels / estimate` size | estimate, when the workspace uses points |
+
+Epic: Shortcut has a native Epic. Create the epic first, then each story with
+`epic_id` set to it. `tracker.create.epic_kind` is `epic`.
+
+State: `tracker.create.initial_state`, matched by name in the target workflow. No
+match → the workflow's default unstarted state, and say so.
+
 ## `none`
 
-No tracker. Delivery is git and the PR host only.
+**Mechanism:** none. Delivery is git and the PR host only.
 
 - Branch from `.sdd/conventions.md`, else ask.
 - No comment step. Everything the tracker comment would have carried goes in the PR
@@ -98,6 +237,12 @@ No tracker. Delivery is git and the PR host only.
 - No status step.
 - Report the tracker lines as `n/a (adapter: none)`, not as `blocked`. Absence of a
   tracker is a configuration, not a failure.
+
+### Create
+
+Nothing is created. The `task` draft on disk is the deliverable: report its path,
+report the tracker line as `n/a (adapter: none)`, and leave `## Created` empty so a
+later run — once an adapter is configured — still works.
 
 This is the default when detection was ambiguous. A wrong adapter writes to the
 wrong place, so `none` is the safe landing spot — and `/shipit:init` can be re-run
