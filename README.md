@@ -125,6 +125,7 @@ The new command has to resolve. `/shipit:task` in Claude Code and Codex,
 /shipit:handoff     issues, branch, commit, PR, tracker  the only skill with side effects
         │
 /shipit:pr-fix      review comments + red CI             as needed
+                    `--comments` / `--ci` to scope
 ```
 
 Plus two for visibility:

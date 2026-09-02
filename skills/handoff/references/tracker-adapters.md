@@ -22,15 +22,20 @@ models a parent, for anyone creating an epic.
 - An unavailable tracker is `partial`, never a silent skip. Name the failing call.
 - **Name the missing capability, not the tool.** "Linear MCP not connected" is
   actionable; "tracker unavailable" is not.
-- QA steps are copied **verbatim**, into a tracker comment or into a created
-  issue's body. They were written for someone who does not read code.
 - **The draft's type maps to whatever this tracker calls it** — an issue type, a
   story type, or a label. No native concept → a label, and only one that already
   exists. Never introduce a `bug`/`feature` label scheme a repo does not have; say
   the type went unmapped instead.
-- Everything else in a comment is one line: summary, validation result, PR link. No
-  file list, no diff narration, no restating the ticket back to the person who wrote
-  it.
+- **A comment carries the QA steps and the PR link. Nothing else.** No summary, no
+  validation result, no file list, no diff narration, no restating the ticket back
+  to the person who wrote it. The PR is where the change is described; the ticket is
+  where someone learns how to verify it.
+- QA steps are copied **verbatim**, into a tracker comment or into a created
+  issue's body. They were written for someone who does not read code, so they are
+  never shortened.
+- **Nothing to say → no comment.** No QA steps in the report, or `review` mode where
+  the thread replies are already the record → skip the write and report the line as
+  `n/a`, not as `blocked`. An empty comment is worse than none.
 
 ## `linear`
 
@@ -53,8 +58,8 @@ QA: UI verification required for <named flows>
 
 No UI work → `QA: Backend only. UI verification not applicable.`
 
-Comment, `implementation` mode: summary, validation result, then the QA steps
-verbatim.
+Comment, `implementation` mode: the QA steps verbatim, then the PR link. No
+comment in `review` mode.
 
 Transitions: `Backlog` → `Todo` in plan mode. → the review state in implementation
 mode. None in review mode.
