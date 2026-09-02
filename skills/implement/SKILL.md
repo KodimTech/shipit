@@ -36,8 +36,9 @@ and verified with commands that are known to run in this repo.
 - **No fake validation.** "Passed" only when the command actually ran and exited 0.
 - No more than 3 attempts on the same failing test, lint, or check without new
   evidence. After that, stop and report.
-- Never run `git commit`, `git push`, a PR command, or a tracker write. Delivery
-  happens only by invoking `handoff`.
+- Never run `git commit`, `git push`, or a PR command. Delivery happens only by
+  invoking `handoff`, and `handoff` never writes to the tracker — the QA steps stay
+  in the report for the user to post.
 - **Comment only what the code cannot say.** Match the file's existing comment
   density — neighbouring functions carry none, yours carries none. No comment
   restating the line below it, no section banners, no narration of the plan, no

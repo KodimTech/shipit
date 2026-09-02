@@ -51,5 +51,6 @@ is a worse split than two that pass.
   its own: they are the union of the children, and duplicating them means two places
   to keep in sync.
 - Carries the ordering rationale when it is not obvious from the dependencies.
-- Is created first. Every child links to it via the adapter's parent field — see
-  `../../handoff/references/tracker-adapters.md`.
+- Goes into the tracker first. Every child then links to it via whatever that
+  tracker calls a parent — the user does this when creating the issues; the draft
+  only states the relationship.

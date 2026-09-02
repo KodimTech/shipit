@@ -122,7 +122,7 @@ The new command has to resolve. `/shipit:task` in Claude Code and Codex,
         │
 /shipit:implement   red/green + validation scoped to the change
         │
-/shipit:handoff     issues, branch, commit, PR, tracker  the only skill with side effects
+/shipit:handoff     branch, commit, push, PR body           the only skill with side effects
         │
 /shipit:pr-fix      review comments + red CI             as needed
                     `--comments` / `--ci` to scope
@@ -147,8 +147,9 @@ paths, not invented ones — shows it to you, and creates it only after you say 
 
 One need, one ticket. A need that spans two layers or two shippable outcomes becomes
 an **epic with subtasks** instead — each one mergeable, verifiable, and worth landing
-on its own, capped at seven. `--epic` and `--single` override the call; `--dry-run`
-stops at the draft; `--plan` runs `/shipit:plan` on the issue it just created.
+on its own, capped at seven. `--epic` and `--single` override the call; `--plan`
+runs `/shipit:plan` on the draft. Every run stops at the draft — creating the issue
+in your tracker is your move.
 
 Every ticket is typed **Bug**, **Feature** or **Chore** on the line under the title
 — what triage filters on first — and mapped to whatever your tracker calls that: a
@@ -203,10 +204,12 @@ tracker → `create.supported` goes `false`, `task` still writes the draft, and
 issue types are always enumerated from your workspace and matched by name; an id
 copied from someone else's workspace writes to the wrong place, silently.
 
-`task`, `plan`, `implement`, and `pr-fix` never run `git commit`, `git push`, a PR
-command, or a tracker write. Only `handoff` does. This is enforced in every skill, so
-a plan can never half-deliver itself, and a draft ticket never reaches your team's
-backlog without you saying yes.
+`task`, `plan`, `implement`, and `pr-fix` never run `git commit`, `git push`, or a
+PR command. Only `handoff` does — and `handoff` does only those, plus the PR body.
+**No skill writes to your tracker, replies to a review thread, or marks a PR ready
+for review.** Creating the ticket, posting the QA steps, resolving the threads and
+moving the issue stay yours, so nothing reaches your team's backlog or a reviewer's
+inbox without you doing it.
 
 ## The `.sdd/` contract
 
@@ -250,7 +253,7 @@ loudly rather than buried in JSON.
 
 `init` asks once which language shipit should write in, and records it as `language`
 in `.sdd/config.json` (`en` by default). It governs prose a human reads — plan,
-implementation report, QA guide, PR body, tracker comments. Code, identifiers,
+implementation report, QA guide, PR body. Code, identifiers,
 commit subjects, branch names and `.sdd/` itself stay English, so the repo stays
 greppable for everyone. Change it by editing the key, or `/shipit:init --language es`.
 
@@ -317,7 +320,7 @@ Run `/shipit:doctor` for your machine's actual state.
 | Tier | What | Without it |
 | --- | --- | --- |
 | **0 — required** | `git` | shipit does not run. That is the whole tier. |
-| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot reach GitHub or your tracker. `task` still drafts, `plan` and `implement` are unaffected. |
+| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot push or open a PR; a tracker MCP only supplies branch names. `task` still drafts, `plan` and `implement` are unaffected. |
 | **2 — accelerators** | graphify CLI + graph; caveman | Discovery falls back to `rg`. Same answers, more tokens. |
 | **3 — do not enable during a cycle** | the ponytail plugin | Nothing. The useful part is already vendored here. |
 
@@ -371,7 +374,7 @@ extracted from:
 | `plan` | ~110 | ~1.8k | −28% on invoke (was ~2.5k) |
 | `implement` | ~90 | ~2.6k | −16% on invoke (was ~3.1k) |
 | `pr-fix` | ~90 | ~1.9k | +6% |
-| `handoff` | ~90 | ~2k | +5% |
+| `handoff` | ~90 | ~1.5k | −21% |
 | `init` | ~90 | ~1.7k | new |
 | `doctor` | ~90 | ~1.4k | new |
 | `status` | ~70 | ~1.2k | new |

@@ -1,44 +1,52 @@
 ---
 name: handoff
-description: Use when shipit artifacts must be delivered — branch, commit, push, pull request, review-thread replies, tracker comment, status transition, or creating the issues a `task` draft describes. Runs after `task`, `plan`, `implement`, or `pr-fix`. Do not use to write plans, tickets, or product code.
+description: Use when shipit artifacts must be delivered to git and the PR — branch, commit, push, and the pull request body. Runs after `plan`, `implement`, or `pr-fix`. It writes nothing to your tracker and posts no review-thread replies. Do not use to write plans, tickets, or product code.
 metadata:
   writes_product_code: false
 ---
 
 # shipit handoff
 
-Owns every external side effect, so `task`, `plan`, `implement`, and `pr-fix` own
-none. They produce artifacts; this skill delivers them.
+Owns every external side effect, so `plan`, `implement`, and `pr-fix` own none.
+They produce artifacts; this skill delivers them — to git and to the pull request,
+and nowhere else.
 
-Four modes: `task` (after a ticket draft is written), `plan` (after a plan is
-written), `implementation` (after a change is verified), `review` (after PR feedback
-is resolved). Ask which one when it is not given and the branch does not make it
-obvious.
+**The delivery surface is exactly four things: branch, commit, push, PR body.**
+No tracker comment, no tracker status transition, no issue creation, no
+review-thread reply, no marking a PR ready for review. Those are human moves. A
+mode that has nothing but those to do has nothing to do.
 
-`task`, `implement` and `pr-fix` invoke this skill themselves — the first after the
-user confirms the draft, the other two once validation is green — passing their
-report. Being invoked that way changes nothing: run the same preflight, and trust the
-report for **content** only — never for whether the side effects already happened.
-They have not. This skill is the only thing that performs them.
+Three modes: `plan` (after a plan is written), `implementation` (after a change is
+verified), `review` (after PR feedback is resolved). Ask which one when it is not
+given and the branch does not make it obvious.
+
+`implement` invokes this skill itself once validation is green, passing its report.
+`pr-fix` does **not** — the user runs `/shipit:handoff` by hand after reviewing the
+fixes. Being invoked either way changes nothing: run the same preflight, and trust
+the report for **content** only — never for whether the side effects
+already happened. They have not. This skill is the only thing that performs them.
 
 ## Context budget
 
-- Required: `.sdd/config.json` (for `tracker` and `repo`), and the report, plan, or
-  task draft being delivered.
+- Required: `.sdd/config.json` (for `tracker` and `repo`), and the report or plan
+  being delivered.
 - Required: `references/tracker-adapters.md` — only the section for the configured
-  adapter. `task` mode also needs its `### Create` subsection; the other modes do
-  not.
+  adapter. It is consulted for **branch naming and PR issue-linking only**.
 - Optional: `references/worktree-lifecycle.md` when the branch lives in a worktree.
 - Never read the product diff to decide content. The report is the manifest.
 
 ## Hard rules
 
-- Never write product code. Never edit a plan. Delivery only. **One exception, in
-  `task` mode only:** the `## Created` block of the draft being delivered is
-  appended to with the ids that were created. Append-only, that block only —
-  nothing else in the file is touched, and no other mode edits its input at all.
-- **`task` mode does no git.** No branch, no staging, no commit, no push, no PR. It
-  is the one mode with no git side. A ticket exists before a branch does.
+- Never write product code. Never edit a plan or a task draft. Delivery only.
+- **Never write to the tracker.** No comment, no status transition, no issue
+  created, no label. The adapter reference is read for a branch name and an issue
+  reference in the PR body; nothing else about the tracker is touched. Report the
+  tracker line as `n/a (handoff does not write to the tracker)`.
+- **Never reply to or resolve a review thread.** `pr-fix` hands you replies and
+  pushback justifications as text in its report — they stay in the report for the
+  user to post. Copy them nowhere.
+- **Never mark a PR ready for review.** A PR this skill creates stays a draft; one
+  that is already ready stays ready. The transition out of draft is the user's.
 - **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - **Stage by explicit path.** Never `git add -A`, never `git add .`.
 - **`sdd_tracking: local` excludes every `.sdd/*` path from staging**, in every
@@ -52,21 +60,16 @@ They have not. This skill is the only thing that performs them.
 - A dirty worktree with unrelated user changes blocks the commit unless the shipit
   artifacts isolate cleanly. Stop and report. Never stash, reset, or checkout over
   user work.
-- Never fake success. Tracker or host unavailable → report `blocked` or `partial`
-  with the exact failing call. Never a summary that implies it worked.
-- Never move a tracker issue backwards. See the adapter reference for which states
-  are terminal.
+- Never fake success. Host unavailable → report `blocked` or `partial` with the
+  exact failing call. Never a summary that implies it worked.
 - Never merge. Never push to the default branch. Never force-push.
 - Never remove a worktree. That is `/shipit:status --prune`.
 - **One line per side effect.** This skill reports what it did, never what the
-  change was — the report it was handed already said that, and a PR body or tracker
-  comment is not improved by a second telling. Copy sections from the report
-  verbatim or leave them out; never expand them.
+  change was — the report it was handed already said that, and a PR body is not
+  improved by a second telling. Copy sections from the report verbatim or leave
+  them out; never expand them.
 
 ## Preflight — all modes
-
-`task` mode runs steps 5 and 6 only. It touches no branch, no remote, and no
-existing issue, so the rest has nothing to check.
 
 1. `git status`, current branch, remote. `gh auth status` when the host is GitHub.
 2. Read `sdd_tracking` from `.sdd/config.json` (absent → `committed`). Local →
@@ -74,41 +77,9 @@ existing issue, so the rest has nothing to check.
 3. Confirm which checkout you are in. The main checkout is the default and is fine.
    Only when the plan names a worktree must you be in it — see
    `references/worktree-lifecycle.md`.
-4. Tracker issue id present in the branch or slug? Read its **current** status
-   before deciding any transition.
-5. Confirm the artifacts to deliver exist on disk.
-6. Any check fails → stop and report what is missing. Produce **no** partial side
+4. Confirm the artifacts to deliver exist on disk.
+5. Any check fails → stop and report what is missing. Produce **no** partial side
    effects. Half a handoff is worse than none.
-
-## Mode: task
-
-Input: a `task` draft at `<paths.tasks>/<slug>.md`, already confirmed by the user.
-`task` asks; this skill does not ask again.
-
-- **Create** — one issue for a `task` draft. For an `epic` draft, the parent and one
-  issue per `Subtasks` row, linked by the adapter's parent field, **in the order
-  that adapter's `### Create` specifies** — most want the parent first, GitHub needs
-  the children first. Title, body, labels and estimate come from the draft
-  **verbatim** — never re-worded, never expanded with a section the draft did not
-  have. The draft's type maps to the adapter's issue type, story type, or existing
-  label; no mapping available → say the type went unmapped, never invent a label.
-- **Idempotency** — read the draft's `## Created` block first and skip every entry
-  already listed. Re-running on a delivered draft creates nothing. This is what
-  makes retrying a partial delivery safe rather than duplicating a backlog.
-- **Record** — append each created issue to `## Created` as
-  `- #<local n or "parent"> — <ISSUE-ID> — <url>`, immediately after each creation,
-  not in one batch at the end. A crash between two creations must still leave the
-  ledger true.
-- **Partial failure** — child 3 of 5 fails: the two already created stay recorded,
-  the report is `partial`, and it names the exact failing call. Never delete a
-  created issue to "clean up" — say what exists and that a re-run creates only the
-  rest.
-- **Status** — new issues land in `tracker.create.initial_state`. No transition
-  afterwards: nothing has started.
-- **Comment** — none. The body already carries everything.
-- **Blocked** — `tracker.create.supported` false, adapter `none`, or the adapter's
-  mechanism unavailable → create nothing and report `n/a (adapter: none)` or
-  `blocked: <the missing capability>`. The draft stays on disk and stays valid.
 
 ## Mode: plan
 
@@ -125,26 +96,18 @@ Input: a `task` draft at `<paths.tasks>/<slug>.md`, already confirmed by the use
   local` → the body also carries the plan's content verbatim (Goal,
   Acceptance, Files, Notes) — with no commit to show it, the PR would otherwise
   arrive empty of everything a reviewer needs.
-- **Tracker** — the plan comment from the adapter reference.
-- **Status** — earliest-state to next-state only (e.g. `Backlog` → `Todo`). Leave
-  started, completed, cancelled, and duplicate states untouched.
 
 ## Mode: implementation
 
 - **Commit** — every path in the report's `Files Changed`.
 - **Push** — normally.
 - **PR** — replace the plan PR's body on this branch with the report's
-  `PR Preparation` body verbatim, then mark it ready for review. Verbatim means no
-  re-wording, no added preamble, and no re-adding a section the template dropped.
-  Create a new PR only when none exists.
-- **Tracker** — the QA steps **copied verbatim** and the PR link. Nothing else: no
-  summary, no validation result, no file list, no diff narration — the PR already
-  carries all of it, and the person reading the ticket needs to know how to check
-  the work, not what the diff did. The QA steps were written for a non-developer,
-  so they are the one part never shortened. **No QA steps to post → no comment.**
-  The status transition is then the only tracker write.
-- **Status** — move to the review state. Leave QA-ready, completed, cancelled, and
-  duplicate states untouched.
+  `PR Preparation` body verbatim. Verbatim means no re-wording, no added preamble,
+  and no re-adding a section the template dropped. The PR's draft state is left
+  exactly as it is. Create a new PR only when none exists, as a draft.
+- **QA steps** — they stay in the report. They used to be copied to the ticket;
+  now the user posts them wherever they belong. Do not append them to the PR body
+  unless the report's `PR Preparation` section already contains them.
 
 ## Mode: review
 
@@ -153,22 +116,11 @@ pushback justifications.
 
 - **Commit** — every path in the report's `Files Changed`. Same manifest rule. An
   empty `Files Changed` is valid here: a run of `resolved`, `pushback` or `question`
-  items only touches threads. Skip commit and push, go straight to the replies.
+  items touches no code. Then there is nothing to deliver — say so and stop.
 - **Push** — normally, to the PR's existing branch.
-- **PR** — never create one; a missing PR is a preflight failure. Then, per item in
-  the report's table:
-  - `fix` → reply on the thread with one line (what changed, in which file), then
-    resolve the thread. On GitHub: `gh api graphql` with the `resolveReviewThread`
-    mutation, thread id from `pullRequest.reviewThreads`.
-  - `resolved` → reply with the report's one-line reason (already fixed elsewhere,
-    stale, accepted nitpick), then resolve the thread. No commit is implied.
-  - `pushback` → reply with the justification **verbatim** from the report. Do
-    **not** resolve. The decision is human.
-  - `question` → reply with the question verbatim. Do **not** resolve.
-- **Tracker** — none. The thread replies are the record, and a per-item fix summary
-  on the ticket is a second telling of what the PR already shows. Report the tracker
-  line as `n/a (review mode)`.
-- **Status** — no transition. The issue is already in review or later.
+- **PR** — never create one; a missing PR is a preflight failure. Update the body
+  only when the report supplies a new one. Thread replies, resolutions, and the
+  draft state are untouched.
 
 ## Report
 
@@ -176,17 +128,17 @@ One line per side effect, each marked `completed`, `partial`, or `blocked`, with
 exact reason for anything short of completed. No preamble, no summary paragraph, no
 recap of the change — a `completed` line needs no explanation:
 
-- Issues created — `task` mode, one line per issue: local number, id, url. Plus the
-  ones skipped as already present in `## Created`.
 - Branch.
 - Commit hash, and the files staged — plus any `.sdd/*` path excluded because
   tracking is local.
 - Push.
-- PR url.
-- Review thread replies and resolutions — `review` mode, one line per thread.
-- Tracker comment.
-- Tracker status transition.
+- PR url, and whether the body was created or replaced.
+- Tracker — always `n/a (handoff does not write to the tracker)`.
 - Worktree and preflight issues encountered.
+
+Then, when the input report carried them, one line naming what the user still has
+to do by hand: post the QA steps, reply to and resolve the review threads, move the
+ticket, mark the PR ready. Name them; never do them.
 
 This report is appended verbatim to the caller's report. Write it so it survives
 being pasted without edits.

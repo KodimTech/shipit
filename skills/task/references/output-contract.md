@@ -60,8 +60,9 @@ Everything else (`Out of scope`, `Labels / estimate`, `Assumptions`, `Blockers`)
 **conditional: include only when it carries content**. Delete the heading otherwise.
 Never emit `N/A` filler.
 
-`Created` stays in the file, empty, in every mode. `handoff` appends to it and reads
-it back as the idempotency ledger — removing it makes a retry create duplicates.
+`Created` stays in the file, empty, in every mode. No skill writes it: the user
+pastes the ids and urls in once the issues exist, so a later `plan` can find them
+from the draft.
 
 ## Quality bar
 

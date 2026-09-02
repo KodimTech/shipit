@@ -93,8 +93,9 @@ two happened in the report.
 - **The tracker adapter is detected, and asked only when detection is genuinely
   undecided** — two candidates with no connected MCP to break the tie, or a tracker
   MCP connected that no pattern matched. A clean match asks nothing. Ambiguity is
-  never resolved by picking the likelier one: a wrong adapter writes to the wrong
-  place, and a wrongly-quiet `none` makes `task` unable to create anything.
+  never resolved by picking the likelier one: a wrong adapter names the branch
+  after the wrong tracker, and a wrongly-quiet `none` hides one that could have
+  supplied the name.
 - **`language` is asked, never detected.** The language a repo's docs are written
   in does not imply the language its owner wants shipit to write in. Ask once,
   default `en`, record it in `language`.
@@ -103,7 +104,7 @@ two happened in the report.
   against real git state.
 - **Ticket drafts are never committed.** `<paths.tasks>` (default `.sdd/tasks/`)
   is appended to `.git/info/exclude` in **both** tracking modes. A draft is scratch
-  that stops being true the moment `handoff` creates the issue; the tracker is the
+  that stops being true the moment the issue exists in the tracker, which is the
   source of truth from then on, and a stale copy in the repo is worse than none.
 - **Local tracking uses `.git/info/exclude`, never `.gitignore`.** `.gitignore` is
   itself a shared, committed file — writing to it to keep something "local" is a
@@ -125,9 +126,9 @@ two happened in the report.
    append a `.sdd/` entry to `.git/info/exclude` only if nothing already covers
    it — never to `.gitignore`.
 4. **Ask the output language.** First `init` only, in the same breath as tracking.
-   Which language should shipit write in — plan, report, QA guide, PR body,
-   tracker comments? Default `en`. Accept a tag (`es`, `pt-BR`) or a plain name;
-   store the tag in `language`. Prose only: code, identifiers, commit subjects,
+   Which language should shipit write in — plan, report, QA guide, PR body?
+   Default `en`. Accept a tag (`es`, `pt-BR`) or a plain name; store the tag in
+   `language`. Prose only: code, identifiers, commit subjects,
    branch names and `.sdd/` itself stay English. See
    `references/config-schema.md § Scope of language`.
 5. **Detect.** Work through `references/detection-recipes.md` in order. It owns every recipe; do not improvise a detection this file does not describe.
@@ -200,8 +201,9 @@ two happened in the report.
   (with what was ambiguous), or `--tracker`. A `none` that came from an unresolved
   ambiguity is reported as undetermined and appears in `unknown[]` — never as
   "this repo has no tracker".
-- Whether `task` can create issues: the mechanism's state and the target it will
-  create into. `create.supported: false` → say what is missing, in one line.
+- The target new issues belong in: the mechanism's state and the team or project
+  it names. `create.supported: false` → say what is missing, in one line. No skill
+  creates the issue; the target is what the draft is pasted into.
 - Companion tiers, in `doctor`'s format.
 - Any place an agent doc contradicted the repo.
 - Next step: `/shipit:task` for a need with no ticket yet, `/shipit:plan` for one

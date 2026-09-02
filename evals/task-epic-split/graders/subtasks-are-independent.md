@@ -23,8 +23,8 @@ backlog now hides that fact behind four green checkmarks.
 9. **`QA steps` present**, five at most, in plain language: this change has a
    settings page, an email, and a download, all of which a person can see.
 10. **The parent stays within budget** — 22 lines before the `Subtasks` table.
-8. **Nothing was created before the user confirmed.** The transcript shows the draft
-   presented and an explicit yes before any tracker call.
+8. **Nothing was created at all.** The transcript ends at the draft; no tracker
+   call appears in it.
 
 ## Fail on any of
 
@@ -39,8 +39,7 @@ backlog now hides that fact behind four green checkmarks.
   reader may not be a developer.
 - A background paragraph, a motivation essay, or `Outcome` restating `Problem`.
 - A subtask expanded into prose instead of a table row.
-- Any issue created before confirmation, or the confirmation skipped because a flag
-  was passed.
+- Any tracker call, or an invocation of `handoff`.
 - The draft claiming ids that no creation call returned.
 
 ## Notes for the judge

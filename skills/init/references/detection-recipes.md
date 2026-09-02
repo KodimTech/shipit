@@ -154,10 +154,9 @@ Then record `issue_pattern` and whether the adapter can supply a branch name
 (`branch_from_tracker`). `linear` and `shortcut` supply one; `jira` and
 `github-issues` do not.
 
-Why this is asked rather than guessed: a wrong adapter makes `handoff` write to the
-wrong place, and a wrongly-quiet `none` makes `/shipit:task` unable to create
-anything — silently, since `none` is also the legitimate answer for a repo with no
-tracker at all. One question is cheaper than either failure.
+Why this is asked rather than guessed: a wrong adapter yields the wrong branch name
+and the wrong issue reference in the PR, and `none` is also the legitimate answer
+for a repo with no tracker at all. One question is cheaper than either failure.
 
 ## 7b — Tracker create target
 

@@ -46,11 +46,11 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `tracker.adapter` | `linear` \| `github-issues` \| `jira` \| `shortcut` \| `none` | Detected; asked when detection is undecided. **Never `"unknown"`** — an unresolved ambiguity is written `none` with the key in `unknown[]`, which reads as undetermined, not absent |
 | `tracker.issue_pattern` | string \| null | Regex, for slug and branch parsing |
 | `tracker.branch_from_tracker` | boolean | Adapter can supply the branch name |
-| `tracker.create.supported` | boolean | Whether `task` can create issues: the adapter's mechanism is reachable **and** a target is known. False → `task` still writes the draft |
+| `tracker.create.supported` | boolean | Whether a target for new issues is known at all. No skill creates issues; `task` echoes this block so the draft is pasted into the right place |
 | `tracker.create.team` | string \| null \| `"unknown"` | Team, group, or workflow a new issue belongs to. Required by `linear` and `shortcut` |
 | `tracker.create.project` | string \| null \| `"unknown"` | Project or project key. Required by `jira`, optional elsewhere |
 | `tracker.create.initial_state` | string \| null | State name a new issue lands in. Matched by name, never by id |
-| `tracker.create.default_labels` | string[] | Labels applied to every created issue. Only labels the tracker already has |
+| `tracker.create.default_labels` | string[] | Labels a new issue should carry. Only labels the tracker already has |
 | `tracker.create.epic_kind` | string \| null | How this workspace models a parent: `parent-issue`, `epic`, `project`, `task-list` |
 | `graph` | object \| null | `{tool, out, query, path, explain, update}`. Null unless CLI **and** graph exist |
 | `markers.debt` | string | Default `ponytail:` |
@@ -83,7 +83,7 @@ test, and the whole red-green loop degrades to running the full suite.
 ## Scope of `language`
 
 Applies to prose a human reads: plan narrative, implementation report, QA guide,
-PR title and body, review replies, tracker comments, and what a skill prints.
+PR title and body, and what a skill prints.
 
 Never applies to: code, identifiers, comments in code, commit subjects, branch
 names, file paths, and the `.sdd/` contract itself — those stay English so the

@@ -1,6 +1,6 @@
 ---
 name: task
-description: Use when a need, idea, bug report or request must become a tracker ticket — typed bug, feature or chore, as a single task or an epic split into independently shippable subtasks — drafted short against the repo's own `.sdd/` contract. Do not use to design the implementation — that is `plan` — and it never writes to the tracker itself; `handoff` does.
+description: Use when a need, idea, bug report or request must become a tracker ticket — typed bug, feature or chore, as a single task or an epic split into independently shippable subtasks — drafted short against the repo's own `.sdd/` contract. Do not use to design the implementation — that is `plan`. It writes a draft to disk and never touches the tracker; creating the issue is the user's move.
 metadata:
   input: request
   output: sdd-task-draft
@@ -17,8 +17,9 @@ A ticket answers **what** and **why**, in as few lines as that takes. The **how*
 `plan`'s, and writing it here means writing it twice — once against a repo you only
 skimmed, once properly.
 
-This skill ends at the draft on disk. Creating the issue is a side effect, and side
-effects belong to `handoff`.
+This skill ends at the draft on disk. No shipit skill creates the issue — the user
+copies the draft into the tracker, which keeps the backlog a human decision.
+`handoff` delivers git and the PR only.
 
 ## Context budget
 
@@ -42,9 +43,9 @@ effects belong to `handoff`.
 - **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - **No external side effects.** No git, no PR, no tracker write. The draft file is
   the whole deliverable.
-- **Confirm before delivering.** A created ticket is visible to the whole team and
-  awkward to retract. Show the finished draft, ask once, and invoke `handoff` only
-  on an explicit yes. There is no flag that skips this.
+- **Show the draft before ending.** A ticket about to be pasted into a shared
+  backlog is awkward to retract. Show the finished draft and say where it is; the
+  user decides whether it goes to the tracker.
 - **Acceptance criteria are observable from outside the code.** "Returns a 422" is a
   criterion; "adds a validation to the model" is an implementation detail wearing a
   criterion's clothes.
@@ -62,8 +63,9 @@ effects belong to `handoff`.
 - Ambiguity that blocks scope, security, or data → stop with `Blockers`. A ticket
   carrying a blocking unknown is backlog noise that someone else has to re-open.
   Everything else → `Assumptions`, with the default already taken.
-- `tracker.create.supported` false, or adapter `none` → write the draft anyway and
-  report the tracker lines as `n/a`, never `blocked`. No tracker is a configuration.
+- `tracker.create` describes where the draft is *meant* to land — team, project,
+  labels, initial state. Echo it so the user pastes into the right place; nothing
+  reads it to create anything. Adapter `none` → say the draft is the deliverable.
 - Never write to `.sdd/config.json`. A missing `tracker.create` block means the
   config predates it: report the drift and suggest `/shipit:init`, do not patch it.
 
@@ -84,27 +86,23 @@ effects belong to `handoff`.
    Otherwise → `Assumptions` with the default taken.
 7. **Write.** `<paths.tasks>/<slug>.md` (default `.sdd/tasks`). Drafts are local
    scratch; once created, the tracker is the source of truth.
-8. **Confirm and deliver.** Show the draft. On an explicit yes, invoke `handoff` in
-   `task` mode with the draft path. `--dry-run` stops here.
+8. **Show.** Output the draft and its path. Nothing is created — the user pastes
+   it into the tracker.
 9. **Self-check.** Run `output-contract.md`'s checks as checks. Never emit the
    checklist into the draft.
 
 ## Flags
 
 - `--epic` / `--single` — force the shape instead of deriving it.
-- `--dry-run` — stop at the draft. Nothing is created, nothing is asked.
-- `--plan` — after creation, run `/shipit:plan` on the new issue. In epic mode it
-  targets **the first subtask only**; planning five tickets in one turn is a token
-  bomb, and four of the five plans go stale before anyone reads them.
+- `--plan` — after the draft, run `/shipit:plan` on it. In epic mode it targets
+  **the first subtask only**; planning five tickets in one turn is a token bomb, and
+  four of the five plans go stale before anyone reads them.
 
 ## Final report
 
 - Draft path, and the shape — `task`, or `epic` with the subtask count.
-- Adapter, and whether `tracker.create.supported` is true. False or `none` → one
-  line saying the draft is the deliverable and how to create the issue by hand.
+- Adapter, so the user knows where the draft is meant to land.
 - Blockers, or assumptions taken.
-- `handoff`'s report, appended verbatim. Never re-summarise it.
-- Next: `/shipit:plan <ISSUE-ID>`.
+- Next: create the issue from the draft, then `/shipit:plan <ISSUE-ID>`.
 
-Do not claim a ticket was created. This skill ends at the draft; `handoff` says what
-reached the tracker.
+Never claim a ticket was created. This skill ends at the draft.

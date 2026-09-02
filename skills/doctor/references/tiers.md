@@ -22,10 +22,10 @@ executables, and a tracker is reached through an MCP server or `gh`. They come f
 
 | Item | Check | Fix | Without it |
 | --- | --- | --- | --- |
-| `gh` | `command -v gh` | `brew install gh`, or see cli.github.com | `handoff` cannot open, update, or comment on a PR |
+| `gh` | `command -v gh` | `brew install gh`, or see cli.github.com | `handoff` cannot open or update a PR |
 | `gh` auth | `gh auth status` | `gh auth login` | same as above |
-| tracker | adapter from `.sdd/config.json`, plus whether its mechanism is reachable this session | re-run `/shipit:init` once the tracker is reachable | no issue comments, no status transitions. Adapter `none` is a valid configuration, not a gap |
-| tracker create | `tracker.create.supported` plus the target it names | re-run `/shipit:init` with the tracker connected | `task` writes the draft but cannot create the issue. With adapter `none` this is `n/a`, not a gap |
+| tracker | adapter from `.sdd/config.json`, plus whether its mechanism is reachable this session | re-run `/shipit:init` once the tracker is reachable | no tracker-supplied branch name — `.sdd/conventions.md` decides instead. Adapter `none` is a valid configuration, not a gap |
+| tracker create | `tracker.create.supported` plus the target it names | re-run `/shipit:init` with the tracker connected | the draft names no target to paste into. `task` still writes it, and no skill ever creates the issue. With adapter `none` this is `n/a`, not a gap |
 
 ## Tier 2 — accelerators
 
