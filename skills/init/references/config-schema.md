@@ -21,6 +21,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `shipit_version` | string | Plugin version that wrote the file |
 | `generated_at` | date | Used by refresh mode to detect human edits |
 | `sdd_tracking` | `committed` \| `local` | Asked once at first `init`. `local` means excluded via `.git/info/exclude`, never `.gitignore`. Read by `handoff` (staging) and `plan`'s worktree step (contract sharing) |
+| `handoff.allow` | string[] | Side effects `handoff` may perform. Absent → `["branch", "commit", "push", "pr_body"]`. See below |
 | `repo.name` | string | Basename of the git toplevel |
 | `repo.default_branch` | string | From `origin/HEAD` |
 | `repo.remote` | string | Usually `origin` |
@@ -46,11 +47,11 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `tracker.adapter` | `linear` \| `github-issues` \| `jira` \| `shortcut` \| `none` | Detected; asked when detection is undecided. **Never `"unknown"`** — an unresolved ambiguity is written `none` with the key in `unknown[]`, which reads as undetermined, not absent |
 | `tracker.issue_pattern` | string \| null | Regex, for slug and branch parsing |
 | `tracker.branch_from_tracker` | boolean | Adapter can supply the branch name |
-| `tracker.create.supported` | boolean | Whether `task` can create issues: the adapter's mechanism is reachable **and** a target is known. False → `task` still writes the draft |
+| `tracker.create.supported` | boolean | Whether a target for new issues is known at all. No skill creates issues; `task` echoes this block so the draft is pasted into the right place |
 | `tracker.create.team` | string \| null \| `"unknown"` | Team, group, or workflow a new issue belongs to. Required by `linear` and `shortcut` |
 | `tracker.create.project` | string \| null \| `"unknown"` | Project or project key. Required by `jira`, optional elsewhere |
 | `tracker.create.initial_state` | string \| null | State name a new issue lands in. Matched by name, never by id |
-| `tracker.create.default_labels` | string[] | Labels applied to every created issue. Only labels the tracker already has |
+| `tracker.create.default_labels` | string[] | Labels a new issue should carry. Only labels the tracker already has |
 | `tracker.create.epic_kind` | string \| null | How this workspace models a parent: `parent-issue`, `epic`, `project`, `task-list` |
 | `graph` | object \| null | `{tool, out, query, path, explain, update}`. Null unless CLI **and** graph exist |
 | `markers.debt` | string | Default `ponytail:` |
@@ -83,7 +84,7 @@ test, and the whole red-green loop degrades to running the full suite.
 ## Scope of `language`
 
 Applies to prose a human reads: plan narrative, implementation report, QA guide,
-PR title and body, review replies, tracker comments, and what a skill prints.
+PR title and body, and what a skill prints.
 
 Never applies to: code, identifiers, comments in code, commit subjects, branch
 names, file paths, and the `.sdd/` contract itself — those stay English so the
@@ -99,6 +100,31 @@ the worktree root can read them.
 `init` always writes `[]`. Filling it is a deliberate user decision. The safe
 alternative is `worktree.setup`, which regenerates what the worktree needs.
 
+## `handoff.allow`
+
+The permission list for the one skill with side effects. Every entry is opt-in
+except the four defaults, and a capability that is absent is simply not performed —
+reported as `skipped (not in handoff.allow)`, never as an error.
+
+| Entry | Grants |
+| --- | --- |
+| `branch` | creating or switching to the delivery branch |
+| `commit` | staging and committing the manifest |
+| `push` | pushing the branch |
+| `pr_body` | creating a draft PR, and replacing its body |
+| `pr_ready` | marking a PR ready for review |
+| `tracker_comment` | one comment per mode — QA steps and the PR link |
+| `tracker_status` | the mode's status transition |
+| `thread_replies` | replying to and resolving review threads after `pr-fix` |
+| `issue_create` | `handoff`'s `task` mode: creating the issues a draft describes |
+
+Defaults to the first four. `init` writes them explicitly so the file says what it
+allows rather than relying on a default nobody remembers. Granting a capability
+never creates one: `tracker_comment` with adapter `none` is still `n/a`.
+
+Unknown entries are ignored and reported as drift. An empty list means `handoff`
+does nothing and says which capability the run needed.
+
 ## Reading it safely
 
 - Never assume a key exists. A config written by an older `shipit_version` may
@@ -108,6 +134,8 @@ alternative is `worktree.setup`, which regenerates what the worktree needs.
 - A `tracker.create` block that is absent means the config predates the field.
   Treat it as `supported: false` — `task` writes a draft and reports the drift.
   Never patch the config to add it; that is a re-run of `init`.
+- An absent `handoff.allow` is the default four, not "everything". A config written
+  before the field existed gets git and the PR body, nothing that reaches a human.
 - Never write to this file outside `init`. A skill that wants to change the
   contract reports the drift and lets the user re-run `init`.
 - A command that fails *because it does not exist* means the contract has drifted.

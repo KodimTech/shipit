@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled` or a `--worktree` flag. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled` or a `--worktree` flag. Do not use for implementation, and not for git or PR delivery — that is `handoff`.
 metadata:
   input: request
   output: sdd-plan
@@ -17,7 +17,7 @@ implementer loads `.sdd/` itself. The plan carries only what it cannot derive fr
 the repo: the decisions, the exact files, the analogues, the guess-prone
 specifics. Everything else is noise that costs tokens on every read.
 
-This skill ends when the plan file is written. Branch, commit, PR, tracker —
+This skill ends when the plan file is written. Branch, commit, push, PR —
 `handoff`.
 
 ## Context budget
@@ -63,7 +63,7 @@ Read narrow. Bulk-loading is the single biggest token sink in this flow.
 - Ambiguity that blocks architecture, security, or data → stop with `Blockers`.
   Everything else → `Assumptions`, with the default already taken.
 - No external side effects. `git worktree add` is local and allowed when worktrees
-  are enabled; commit, push, PR, and tracker writes are not.
+  are enabled; commit, push, and PR writes are not.
 - Never create a worktree unless asked: `worktree.enabled` true, or `--worktree` in
   the request. Otherwise plan in the current checkout and say nothing about
   worktrees. `--no-worktree` overrides `enabled: true`.

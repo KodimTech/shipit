@@ -76,7 +76,7 @@ convention from another project.
 - `unknown` on a **test kind or layer shape** → ask, unless an analogue in the
   actual diff area settles it.
 - `unknown` on the **tracker** → treat as `none`. Never guess an adapter;
-  `handoff` would write to the wrong place.
+  the branch and the PR would point at the wrong place.
 
 An `unknown` that keeps blocking plans is a signal to re-run `/shipit:init`, not
 to work around it forever. Say so.

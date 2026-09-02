@@ -4,7 +4,7 @@
 row at the same time, and no connected MCP breaks the tie. Both readings are
 plausible; exactly one is right.
 
-Guessing wrong sends every future `handoff` comment to the wrong tracker. Guessing
+Guessing wrong puts the wrong branch name and issue reference on every PR. Guessing
 `none` to stay safe is worse in a different way: it is also the correct answer for a
 repo with no tracker, so nothing downstream can tell a misdetection from a fact, and
 `/shipit:task` silently stops being able to create anything.

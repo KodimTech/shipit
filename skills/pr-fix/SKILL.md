@@ -1,6 +1,6 @@
 ---
 name: pr-fix
-description: Use when an open pull request has review comments to resolve or red CI. Scope with `--comments` or `--ci`. Minimal fix per item; scope-change requests become pushback, not code. Do not use to plan, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when an open pull request has review comments to resolve or red CI. Scope with `--comments` or `--ci`. Minimal fix per item; scope-change requests become pushback, not code. Do not use to plan, and not to commit or push — the user runs `handoff` for that.
 metadata:
   input: open-pr-feedback
   output: fix-change
@@ -10,8 +10,11 @@ metadata:
 # shipit pr-fix
 
 Resolve review comments and red CI on an open PR. One minimal fix per item. No
-scope expansion. Delivery — commit, push, thread replies, tracker comment — belongs
-to `handoff` in `review` mode.
+scope expansion. This skill never delivers: it leaves the fixes in the working tree
+and a report on screen. Commit, push and the thread replies are `/shipit:handoff` in
+`review` mode — run by the user, and each step only as far as `handoff.allow`
+permits. With `thread_replies` withheld, the replies stay text in the report for the
+user to post.
 
 ## Context budget
 
@@ -55,8 +58,8 @@ This drives the whole run. Build it before any edit.
 | --- | --- | --- | --- | --- |
 
 `resolved` is a thread that needs **no code**: already fixed by another commit,
-stale, or a nitpick being accepted-and-closed. It carries a one-line reason for
-`handoff` to reply with. It is not a way to dismiss a valid comment.
+stale, or a nitpick being accepted-and-closed. It carries a one-line reason for the
+user to reply with. It is not a way to dismiss a valid comment.
 
 No items → report "nothing to fix" and stop.
 
@@ -78,7 +81,7 @@ it" on a thread, or "skip this one" on a failure.
 - Minimal fix per item. No broad refactor, no new scope, no "while I'm here".
 - **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - A comment requesting a **scope or design change is not implemented.** Mark it
-  `pushback` with a one-line technical justification for `handoff` to post. Use the
+  `pushback` with a one-line technical justification for the user to post. Use the
   ladder's tags where they fit — `yagni:` for an abstraction with one
   implementation, `native:` for a dependency the platform already covers. The
   decision stays human.
@@ -87,8 +90,10 @@ it" on a thread, or "skip this one" on a failure.
   coverage, never with an exclusion.
 - No fake validation. "Passed" only when the command ran and exited 0.
 - No more than 3 attempts on the same failure without new evidence.
-- Never run `git commit`, `git push`, a PR command, a thread reply, or a tracker
-  write. Only `handoff` does that.
+- Never run `git commit`, `git push`, or a PR command — the user runs `handoff`
+  for that. Never post a thread reply, resolve a thread, or write to the tracker
+  from here, whatever `handoff.allow` permits: this skill has no side effects at
+  all. Replies live in the report as text.
 
 ## Workflow
 
@@ -107,9 +112,10 @@ it" on a thread, or "skip this one" on a failure.
    commands and exit codes.
 5. **Report.** The item table with a resolution per row, pushback justifications
    verbatim, a `Files Changed` manifest, and validation results.
-6. **Deliver.** Validation green → invoke `handoff` in `review` mode with the
-   report. Its report is appended verbatim. Do not invoke it when the run ended
-   `# Fix Blocked` or `# Fix Incomplete`, or when a validation command failed.
+6. **Hand back.** Never invoke `handoff`, and never commit or push. End with the
+   report and one line naming what is left for the user: run `/shipit:handoff` in
+   `review` mode to commit and push — and to post the replies too, if
+   `handoff.allow` lists `thread_replies`; otherwise those are theirs to post.
 7. **Graph sync.** `graph` set, product code changed, and you are in the **main
    checkout** → run `<graph.update>`. In a worktree, skip and say so.
 
@@ -152,4 +158,4 @@ Include the exact failing output when the stop came from repeated failures.
 
 In this order: Item Table with a resolution per row · Summary · Files Changed ·
 Tests Added/Updated · Validation Commands Run (exact + exit code) · Pushback
-Justifications (verbatim, one per thread, for `handoff` to post) · Handoff.
+Justifications (verbatim, one per thread, for the user to post) · Next step.

@@ -1,7 +1,7 @@
 {
   "name": "shipit",
-  "version": "0.6.0",
-  "description": "Spec-driven development for any repo. `init` detects your stack, commands, layers and tests from evidence; `task` turns a need into a tracker ticket or an epic; `plan` writes a contract in your checkout (parallel worktrees are opt-in); `implement` executes and verifies it; `handoff` is the only skill that touches git, GitHub, or your tracker.",
+  "version": "0.7.0",
+  "description": "Spec-driven development for any repo. `init` detects your stack, commands, layers and tests from evidence; `task` turns a need into a tracker ticket or an epic; `plan` writes a contract in your checkout (parallel worktrees are opt-in); `implement` executes and verifies it; `handoff` is the only skill with side effects, and `handoff.allow` in your config says which: branch, commit, push and the PR body by default — tracker comments, status moves, thread replies and issue creation are opt-in.",
   "author": {
     "name": "Kodim Tech",
     "url": "https://github.com/KodimTech"
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "shipit",
     "shortDescription": "Plan, implement and deliver work under a contract generated from your own repo",
-    "longDescription": "shipit detects your conventions instead of assuming them. `init` reads the repository once, writes a contract at `.sdd/`, and points `AGENTS.md` and `CLAUDE.md` at it so any agent loads it; `task`, `plan`, `implement`, `pr-fix` and `handoff` all work from that contract, so nothing in the plugin needs to know your framework. `task` turns a need into a Linear, Jira, Shortcut or GitHub issue — one ticket, or an epic split into independently shippable subtasks. Parallel worktrees are opt-in, and git, GitHub and tracker writes happen only in `handoff`.",
+    "longDescription": "shipit detects your conventions instead of assuming them. `init` reads the repository once, writes a contract at `.sdd/`, and points `AGENTS.md` and `CLAUDE.md` at it so any agent loads it; `task`, `plan`, `implement`, `pr-fix` and `handoff` all work from that contract, so nothing in the plugin needs to know your framework. `task` drafts a Linear, Jira, Shortcut or GitHub ticket — one, or an epic split into independently shippable subtasks — and by default leaves creating it to you. Parallel worktrees are opt-in, and every side effect happens in `handoff`, gated by the `handoff.allow` list in `.sdd/config.json`.",
     "developerName": "Kodim Tech",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write"],

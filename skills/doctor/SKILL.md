@@ -80,8 +80,9 @@ reading this should know whether they can proceed, in one line.
 | --- | --- |
 | `git` | shipit cannot run. Only real blocker. |
 | `gh` | `handoff` cannot open or update PRs. Planning and implementing are unaffected. |
-| tracker `none` | No issue comments, no status transitions. Everything else works. |
-| `tracker.create.supported` false | `task` drafts the ticket and stops there. Nothing else changes — and with adapter `none` this is the expected state, not a gap. |
+| tracker `none` | Branch names come from `.sdd/conventions.md` instead. Everything else works. |
+| `handoff.allow` at its default | `handoff` does git and the PR body only. Tracker comments, status moves, thread replies and marking a PR ready are yours. Not a gap — a setting. |
+| `tracker.create.supported` false | The draft carries no paste target. `task` drafts either way — creating the issue is always the user's move — and with adapter `none` this is the expected state, not a gap. |
 | graphify CLI | Discovery falls back to `rg`/`git grep`. Same answers, more tokens. |
 | graphify graph | Same as above — having the CLI without a graph changes nothing. |
 | caveman | Chat prose and reports stay long. Note that shipit keeps PR bodies and reports short on its own, and exempts non-developer QA steps from compression either way. |

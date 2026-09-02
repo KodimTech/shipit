@@ -100,4 +100,4 @@ the comment now.>
 ## PR Preparation
 
 <Title and body from `assets/pr-description-template.md`, including its section
-drops. Written here, posted by `handoff` — never posted from this skill.>
+drops. Written here, put on the PR by `handoff` — never posted from this skill.>

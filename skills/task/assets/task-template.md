@@ -59,13 +59,13 @@ sentence per cell. Local numbers only — no tracker ids exist yet.>
 
 <Only when the ticket cannot be created as written. A blocker carries a
 recommendation. Delete this section when there are none — and when it is present,
-nothing was delivered to the tracker.>
+the draft is not ready to go into the tracker yet.>
 
 ## Created
 
-<!-- Written by `handoff` in task mode. Empty until then, and never deleted: it is
-     the idempotency ledger. A re-run skips every entry already listed here, which
-     is what makes retrying a partial delivery safe.
+<!-- Written by `handoff` in task mode when `handoff.allow` lists `issue_create`;
+     filled in by hand otherwise. Keep it, empty, until then — it is both the
+     idempotency ledger for a re-run and where a later `plan` looks up the id.
 
      One line per issue, parent first:
        - #<local n or "parent"> — <ISSUE-ID> — <url>
