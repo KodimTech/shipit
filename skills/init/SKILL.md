@@ -111,6 +111,11 @@ two happened in the report.
   contradiction. `.git/info/exclude` lives under `.git/`, is never committed, and
   the decision stays exactly as private as intended, in every collaborator's own
   checkout.
+- **`handoff.allow` is written, never asked.** The template's four defaults —
+  `branch`, `commit`, `push`, `pr_body` — go in as-is. Widening it is a decision
+  about who gets pinged, and the answer is worthless from someone who has not run
+  the cycle yet. Name it in the report so it is discoverable; let them edit the
+  file.
 - No product code. No branch, commit, PR, or tracker write.
 
 ## Workflow
@@ -202,8 +207,13 @@ two happened in the report.
   ambiguity is reported as undetermined and appears in `unknown[]` — never as
   "this repo has no tracker".
 - The target new issues belong in: the mechanism's state and the team or project
-  it names. `create.supported: false` → say what is missing, in one line. No skill
-  creates the issue; the target is what the draft is pasted into.
+  it names. `create.supported: false` → say what is missing, in one line. With
+  `issue_create` withheld, the target is what the draft is pasted into.
+- **`handoff.allow`, and the one line that it can be widened.** Written as
+  `["branch", "commit", "push", "pr_body"]`: `handoff` touches git and the PR body
+  and nothing that reaches a human. `pr_ready`, `tracker_comment`,
+  `tracker_status`, `thread_replies` and `issue_create` are added by hand — see
+  `references/config-schema.md § handoff.allow`.
 - Companion tiers, in `doctor`'s format.
 - Any place an agent doc contradicted the repo.
 - Next step: `/shipit:task` for a need with no ticket yet, `/shipit:plan` for one

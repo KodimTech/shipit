@@ -10,7 +10,8 @@ Load the shipit `handoff` skill and run it.
   `<root>/skills/handoff/references/`.
 - Command names are flat here: `/shipit:handoff` is `/shipit-handoff`.
 
-This skill performs external side effects (push, PR body). Confirm
+This skill performs external side effects (push, PR body, and whatever else
+`handoff.allow` permits). Confirm
 the mode — `plan`, `implement`, or `pr-fix` — before writing anything.
 
 Request: $ARGUMENTS

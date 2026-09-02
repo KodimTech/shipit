@@ -123,6 +123,7 @@ The new command has to resolve. `/shipit:task` in Claude Code and Codex,
 /shipit:implement   red/green + validation scoped to the change
         │
 /shipit:handoff     branch, commit, push, PR body           the only skill with side effects
+                    tracker + threads only if allowed
         │
 /shipit:pr-fix      review comments + red CI             as needed
                     `--comments` / `--ci` to scope
@@ -147,9 +148,10 @@ paths, not invented ones — shows it to you, and creates it only after you say 
 
 One need, one ticket. A need that spans two layers or two shippable outcomes becomes
 an **epic with subtasks** instead — each one mergeable, verifiable, and worth landing
-on its own, capped at seven. `--epic` and `--single` override the call; `--plan`
-runs `/shipit:plan` on the draft. Every run stops at the draft — creating the issue
-in your tracker is your move.
+on its own, capped at seven. `--epic` and `--single` override the call; `--dry-run`
+stops at the draft; `--plan` runs `/shipit:plan` on it. By default every run stops
+at the draft and creating the issue is your move — add `issue_create` to
+`handoff.allow` to have `handoff` create it after you confirm.
 
 Every ticket is typed **Bug**, **Feature** or **Chore** on the line under the title
 — what triage filters on first — and mapped to whatever your tracker calls that: a
@@ -205,11 +207,22 @@ issue types are always enumerated from your workspace and matched by name; an id
 copied from someone else's workspace writes to the wrong place, silently.
 
 `task`, `plan`, `implement`, and `pr-fix` never run `git commit`, `git push`, or a
-PR command. Only `handoff` does — and `handoff` does only those, plus the PR body.
-**No skill writes to your tracker, replies to a review thread, or marks a PR ready
-for review.** Creating the ticket, posting the QA steps, resolving the threads and
-moving the issue stay yours, so nothing reaches your team's backlog or a reviewer's
-inbox without you doing it.
+PR command. Only `handoff` does — and what `handoff` may do is a config list, not a
+judgement call:
+
+```json
+"handoff": { "allow": ["branch", "commit", "push", "pr_body"] }
+```
+
+That is the default `/shipit:init` writes. On it, **nothing reaches a human**: no
+tracker comment, no status transition, no review-thread reply, no marking a PR ready
+for review, no issue created. Add `tracker_comment`, `tracker_status`,
+`thread_replies`, `pr_ready` or `issue_create` when you want that back — per repo,
+by hand. A capability that is not listed is not performed, and the run says
+`skipped (not in handoff.allow)` rather than doing it anyway.
+
+The opt-in prose lives in a reference `handoff` loads only when the flag is on, so
+the default costs nothing in context.
 
 ## The `.sdd/` contract
 
@@ -320,7 +333,7 @@ Run `/shipit:doctor` for your machine's actual state.
 | Tier | What | Without it |
 | --- | --- | --- |
 | **0 — required** | `git` | shipit does not run. That is the whole tier. |
-| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot push or open a PR; a tracker MCP only supplies branch names. `task` still drafts, `plan` and `implement` are unaffected. |
+| **1 — recommended** | `gh` authenticated; a tracker MCP if you use one | `handoff` cannot push or open a PR; without a tracker MCP it falls back on your branch convention. `task` still drafts, `plan` and `implement` are unaffected. |
 | **2 — accelerators** | graphify CLI + graph; caveman | Discovery falls back to `rg`. Same answers, more tokens. |
 | **3 — do not enable during a cycle** | the ponytail plugin | Nothing. The useful part is already vendored here. |
 

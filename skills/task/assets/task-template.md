@@ -63,8 +63,9 @@ the draft is not ready to go into the tracker yet.>
 
 ## Created
 
-<!-- Filled in by hand once the issues exist in the tracker. No skill writes here.
-     Keep it, empty, until then: it is where a later `plan` looks up the id.
+<!-- Written by `handoff` in task mode when `handoff.allow` lists `issue_create`;
+     filled in by hand otherwise. Keep it, empty, until then — it is both the
+     idempotency ledger for a re-run and where a later `plan` looks up the id.
 
      One line per issue, parent first:
        - #<local n or "parent"> — <ISSUE-ID> — <url>

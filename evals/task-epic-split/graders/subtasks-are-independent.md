@@ -23,8 +23,9 @@ backlog now hides that fact behind four green checkmarks.
 9. **`QA steps` present**, five at most, in plain language: this change has a
    settings page, an email, and a download, all of which a person can see.
 10. **The parent stays within budget** — 22 lines before the `Subtasks` table.
-8. **Nothing was created at all.** The transcript ends at the draft; no tracker
-   call appears in it.
+8. **Nothing was created at all.** `issue_create` is not in this repo's
+   `handoff.allow`, so the transcript ends at the draft and no tracker call appears
+   in it.
 
 ## Fail on any of
 
@@ -39,7 +40,7 @@ backlog now hides that fact behind four green checkmarks.
   reader may not be a developer.
 - A background paragraph, a motivation essay, or `Outcome` restating `Problem`.
 - A subtask expanded into prose instead of a table row.
-- Any tracker call, or an invocation of `handoff`.
+- Any tracker call, or an invocation of `handoff` this config gives nothing to do.
 - The draft claiming ids that no creation call returned.
 
 ## Notes for the judge

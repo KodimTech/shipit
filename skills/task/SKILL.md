@@ -17,9 +17,10 @@ A ticket answers **what** and **why**, in as few lines as that takes. The **how*
 `plan`'s, and writing it here means writing it twice — once against a repo you only
 skimmed, once properly.
 
-This skill ends at the draft on disk. No shipit skill creates the issue — the user
-copies the draft into the tracker, which keeps the backlog a human decision.
-`handoff` delivers git and the PR only.
+This skill ends at the draft on disk. Whether anything creates the issue is
+`handoff.allow` in `.sdd/config.json`: with `issue_create` listed, invoke `handoff`
+in `task` mode on an explicit yes; without it — the default — the draft is the
+deliverable and the user pastes it into the tracker.
 
 ## Context budget
 
@@ -43,9 +44,10 @@ copies the draft into the tracker, which keeps the backlog a human decision.
 - **Prose language.** Human-facing output follows `language` in `.sdd/config.json` (absent → `en`). Code, identifiers, commit subjects and branch names stay English.
 - **No external side effects.** No git, no PR, no tracker write. The draft file is
   the whole deliverable.
-- **Show the draft before ending.** A ticket about to be pasted into a shared
-  backlog is awkward to retract. Show the finished draft and say where it is; the
-  user decides whether it goes to the tracker.
+- **Show the draft before delivering.** A ticket in a shared backlog is awkward to
+  retract. Show the finished draft and say where it is. With `issue_create`
+  allowed, ask once and invoke `handoff` only on an explicit yes — there is no flag
+  that skips that. Without it, showing the draft *is* the ending.
 - **Acceptance criteria are observable from outside the code.** "Returns a 422" is a
   criterion; "adds a validation to the model" is an implementation detail wearing a
   criterion's clothes.
@@ -86,14 +88,17 @@ copies the draft into the tracker, which keeps the backlog a human decision.
    Otherwise → `Assumptions` with the default taken.
 7. **Write.** `<paths.tasks>/<slug>.md` (default `.sdd/tasks`). Drafts are local
    scratch; once created, the tracker is the source of truth.
-8. **Show.** Output the draft and its path. Nothing is created — the user pastes
-   it into the tracker.
+8. **Show, then deliver if allowed.** Output the draft and its path.
+   `handoff.allow` lists `issue_create` → ask, and on an explicit yes invoke
+   `handoff` in `task` mode with the draft path. Otherwise stop here; nothing is
+   created and the user pastes it into the tracker. `--dry-run` always stops here.
 9. **Self-check.** Run `output-contract.md`'s checks as checks. Never emit the
    checklist into the draft.
 
 ## Flags
 
 - `--epic` / `--single` — force the shape instead of deriving it.
+- `--dry-run` — stop at the draft. Nothing is created, nothing is asked.
 - `--plan` — after the draft, run `/shipit:plan` on it. In epic mode it targets
   **the first subtask only**; planning five tickets in one turn is a token bomb, and
   four of the five plans go stale before anyone reads them.
@@ -101,8 +106,12 @@ copies the draft into the tracker, which keeps the backlog a human decision.
 ## Final report
 
 - Draft path, and the shape — `task`, or `epic` with the subtask count.
-- Adapter, so the user knows where the draft is meant to land.
+- Adapter, and whether `handoff.allow` permits `issue_create`. Withheld → one line
+  saying the draft is the deliverable and where it is meant to land.
 - Blockers, or assumptions taken.
-- Next: create the issue from the draft, then `/shipit:plan <ISSUE-ID>`.
+- `handoff`'s report, appended verbatim, when it ran. Never re-summarise it.
+- Next: create the issue from the draft when nothing did, then
+  `/shipit:plan <ISSUE-ID>`.
 
-Never claim a ticket was created. This skill ends at the draft.
+Never claim a ticket was created. This skill ends at the draft; only `handoff` says
+what reached the tracker.

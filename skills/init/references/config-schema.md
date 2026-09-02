@@ -21,6 +21,7 @@ downgraded to `null` after failing verification. `doctor` and `init` print it.
 | `shipit_version` | string | Plugin version that wrote the file |
 | `generated_at` | date | Used by refresh mode to detect human edits |
 | `sdd_tracking` | `committed` \| `local` | Asked once at first `init`. `local` means excluded via `.git/info/exclude`, never `.gitignore`. Read by `handoff` (staging) and `plan`'s worktree step (contract sharing) |
+| `handoff.allow` | string[] | Side effects `handoff` may perform. Absent → `["branch", "commit", "push", "pr_body"]`. See below |
 | `repo.name` | string | Basename of the git toplevel |
 | `repo.default_branch` | string | From `origin/HEAD` |
 | `repo.remote` | string | Usually `origin` |
@@ -99,6 +100,31 @@ the worktree root can read them.
 `init` always writes `[]`. Filling it is a deliberate user decision. The safe
 alternative is `worktree.setup`, which regenerates what the worktree needs.
 
+## `handoff.allow`
+
+The permission list for the one skill with side effects. Every entry is opt-in
+except the four defaults, and a capability that is absent is simply not performed —
+reported as `skipped (not in handoff.allow)`, never as an error.
+
+| Entry | Grants |
+| --- | --- |
+| `branch` | creating or switching to the delivery branch |
+| `commit` | staging and committing the manifest |
+| `push` | pushing the branch |
+| `pr_body` | creating a draft PR, and replacing its body |
+| `pr_ready` | marking a PR ready for review |
+| `tracker_comment` | one comment per mode — QA steps and the PR link |
+| `tracker_status` | the mode's status transition |
+| `thread_replies` | replying to and resolving review threads after `pr-fix` |
+| `issue_create` | `handoff`'s `task` mode: creating the issues a draft describes |
+
+Defaults to the first four. `init` writes them explicitly so the file says what it
+allows rather than relying on a default nobody remembers. Granting a capability
+never creates one: `tracker_comment` with adapter `none` is still `n/a`.
+
+Unknown entries are ignored and reported as drift. An empty list means `handoff`
+does nothing and says which capability the run needed.
+
 ## Reading it safely
 
 - Never assume a key exists. A config written by an older `shipit_version` may
@@ -108,6 +134,8 @@ alternative is `worktree.setup`, which regenerates what the worktree needs.
 - A `tracker.create` block that is absent means the config predates the field.
   Treat it as `supported: false` — `task` writes a draft and reports the drift.
   Never patch the config to add it; that is a re-run of `init`.
+- An absent `handoff.allow` is the default four, not "everything". A config written
+  before the field existed gets git and the PR body, nothing that reaches a human.
 - Never write to this file outside `init`. A skill that wants to change the
   contract reports the drift and lets the user re-run `init`.
 - A command that fails *because it does not exist* means the contract has drifted.

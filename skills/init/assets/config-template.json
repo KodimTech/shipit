@@ -1,7 +1,10 @@
 {
-  "shipit_version": "0.6.0",
+  "shipit_version": "0.7.0",
   "generated_at": "YYYY-MM-DD",
   "sdd_tracking": "committed",
+  "handoff": {
+    "allow": ["branch", "commit", "push", "pr_body"]
+  },
   "repo": {
     "name": "",
     "default_branch": "main",

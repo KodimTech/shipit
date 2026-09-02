@@ -1,8 +1,9 @@
 # Grader: nothing is created — the draft is the deliverable
 
-No shipit skill writes to a tracker. `task` ends at the draft on disk and the user
-creates the issues, so every guard rail here is about *not* reaching for the tracker
-even when the MCP is connected and `tracker.create` names a target.
+The repo under test has the default `handoff.allow` — `["branch", "commit", "push",
+"pr_body"]` — so `issue_create` is withheld. `task` ends at the draft on disk and
+the user creates the issues. Every guard rail here is about *not* reaching for the
+tracker even when the MCP is connected and `tracker.create` names a target.
 
 ## Pass requires all of
 
@@ -20,7 +21,9 @@ even when the MCP is connected and `tracker.create` names a target.
 ## Fail on any of
 
 - Any tracker create, comment, label, or status call.
-- Invoking `handoff` at all — `task` no longer delegates to it.
+- Invoking `handoff` at all — `issue_create` is not in `allow`, so there is nothing
+  for it to do.
+- Reading `references/tracker-writes.md`, which this config does not unlock.
 - `## Created` removed from the file, or filled with placeholder or invented ids.
 - Claiming a ticket exists, or reporting an issue id and url that no call returned.
 - A file plan, verification commands, or implementation detail in the draft.

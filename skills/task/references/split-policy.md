@@ -52,5 +52,5 @@ is a worse split than two that pass.
   to keep in sync.
 - Carries the ordering rationale when it is not obvious from the dependencies.
 - Goes into the tracker first. Every child then links to it via whatever that
-  tracker calls a parent — the user does this when creating the issues; the draft
-  only states the relationship.
+  tracker calls a parent — `handoff` when it is allowed to create issues, the user
+  otherwise. Either way the draft states the relationship.

@@ -11,9 +11,10 @@ metadata:
 
 Resolve review comments and red CI on an open PR. One minimal fix per item. No
 scope expansion. This skill never delivers: it leaves the fixes in the working tree
-and a report on screen. Commit and push are `/shipit:handoff` in `review` mode, run
-by the user when they want it. Thread replies, resolutions and any tracker write are
-the user's own move — no skill posts them.
+and a report on screen. Commit, push and the thread replies are `/shipit:handoff` in
+`review` mode — run by the user, and each step only as far as `handoff.allow`
+permits. With `thread_replies` withheld, the replies stay text in the report for the
+user to post.
 
 ## Context budget
 
@@ -90,8 +91,9 @@ it" on a thread, or "skip this one" on a failure.
 - No fake validation. "Passed" only when the command ran and exited 0.
 - No more than 3 attempts on the same failure without new evidence.
 - Never run `git commit`, `git push`, or a PR command — the user runs `handoff`
-  for that. Never post a thread reply, resolve a thread, or write to the tracker:
-  no skill does that any more. Replies live in the report as text.
+  for that. Never post a thread reply, resolve a thread, or write to the tracker
+  from here, whatever `handoff.allow` permits: this skill has no side effects at
+  all. Replies live in the report as text.
 
 ## Workflow
 
@@ -112,8 +114,8 @@ it" on a thread, or "skip this one" on a failure.
    verbatim, a `Files Changed` manifest, and validation results.
 6. **Hand back.** Never invoke `handoff`, and never commit or push. End with the
    report and one line naming what is left for the user: run `/shipit:handoff` in
-   `review` mode to commit and push, then post the replies and resolve the threads
-   themselves.
+   `review` mode to commit and push — and to post the replies too, if
+   `handoff.allow` lists `thread_replies`; otherwise those are theirs to post.
 7. **Graph sync.** `graph` set, product code changed, and you are in the **main
    checkout** → run `<graph.update>`. In a worktree, skip and say so.
 
