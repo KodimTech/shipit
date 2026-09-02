@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Use when an approved shipit plan must be executed, verified, and prepared for QA. Runs the repo's own verified commands from `.sdd/config.json`. Do not use to redesign scope, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when an approved shipit plan must be executed, verified, and prepared for QA. Runs the repo's own verified commands from `.sdd/config.json`. Do not use to redesign scope, and not for git or PR delivery — that is `handoff`.
 metadata:
   input: sdd-plan
   output: implemented-change

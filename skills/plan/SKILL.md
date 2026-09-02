@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled` or a `--worktree` flag. Do not use for implementation, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when planning, scoping, estimating, or breaking down a ticket, issue, bug, or feature request into an implementable contract. Works in the current checkout by default; isolated worktrees are opt-in via `worktree.enabled` or a `--worktree` flag. Do not use for implementation, and not for git or PR delivery — that is `handoff`.
 metadata:
   input: request
   output: sdd-plan
