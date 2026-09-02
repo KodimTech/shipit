@@ -137,10 +137,12 @@ Input: a `task` draft at `<paths.tasks>/<slug>.md`, already confirmed by the use
   `PR Preparation` body verbatim, then mark it ready for review. Verbatim means no
   re-wording, no added preamble, and no re-adding a section the template dropped.
   Create a new PR only when none exists.
-- **Tracker** — the report's summary, the validation result, the PR link, and the
-  QA steps **copied verbatim**. Nothing else: no file list, no diff narration. The
-  QA steps were written for a non-developer, so they are the one part never
-  shortened.
+- **Tracker** — the QA steps **copied verbatim** and the PR link. Nothing else: no
+  summary, no validation result, no file list, no diff narration — the PR already
+  carries all of it, and the person reading the ticket needs to know how to check
+  the work, not what the diff did. The QA steps were written for a non-developer,
+  so they are the one part never shortened. **No QA steps to post → no comment.**
+  The status transition is then the only tracker write.
 - **Status** — move to the review state. Leave QA-ready, completed, cancelled, and
   duplicate states untouched.
 
@@ -163,7 +165,9 @@ pushback justifications.
   - `pushback` → reply with the justification **verbatim** from the report. Do
     **not** resolve. The decision is human.
   - `question` → reply with the question verbatim. Do **not** resolve.
-- **Tracker** — fix summary per item plus validation results.
+- **Tracker** — none. The thread replies are the record, and a per-item fix summary
+  on the ticket is a second telling of what the PR already shows. Report the tracker
+  line as `n/a (review mode)`.
 - **Status** — no transition. The issue is already in review or later.
 
 ## Report
