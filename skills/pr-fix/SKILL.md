@@ -1,6 +1,6 @@
 ---
 name: pr-fix
-description: Use when an open pull request has review comments to resolve or red CI. Minimal fix per item; scope-change requests become pushback, not code. Do not use to plan, and not for git, PR, or tracker delivery — that is `handoff`.
+description: Use when an open pull request has review comments to resolve or red CI. Scope with `--comments` or `--ci`. Minimal fix per item; scope-change requests become pushback, not code. Do not use to plan, and not for git, PR, or tracker delivery — that is `handoff`.
 metadata:
   input: open-pr-feedback
   output: fix-change
@@ -24,6 +24,13 @@ to `handoff` in `review` mode.
 - Never bulk-load rules or docs. A three-line fix does not justify reading the
   layer's whole rule set.
 
+## Scope
+
+- `--comments` → review threads only. Skip intake step 3 and the CI rows.
+- `--ci` → CI only. Skip intake step 2 and the comment rows.
+- Neither → both.
+- Empty table after filtering → report "nothing to fix" and stop.
+
 ## Intake — read-only, allowed
 
 `tracker.adapter` is irrelevant here; the PR host is what matters. With `gh`
@@ -35,9 +42,7 @@ available:
    `isResolved: false`. Thread state not needed →
    `gh api repos/{owner}/{repo}/pulls/{n}/comments`.
 3. CI: `gh pr checks <n>`, then `gh run view <run-id> --log-failed` for each failing
-   job's exact output.
-4. Reproduce each failing test locally with `commands.test_one` before touching
-   code.
+   job's exact output. Read-only — local reproduction happens after the gate.
 
 No `gh` → ask the user to paste the review comments and the failing output. Do not
 guess what a reviewer said.
@@ -46,10 +51,27 @@ guess what a reviewer said.
 
 This drives the whole run. Build it before any edit.
 
-| id | type (comment\|ci) | file | what it asks | action (fix\|pushback\|question) |
+| id | type (comment\|ci) | file | what it asks | action (fix\|resolved\|pushback\|question) |
 | --- | --- | --- | --- | --- |
 
+`resolved` is a thread that needs **no code**: already fixed by another commit,
+stale, or a nitpick being accepted-and-closed. It carries a one-line reason for
+`handoff` to reply with. It is not a way to dismiss a valid comment.
+
 No items → report "nothing to fix" and stop.
+
+### Approval gate — every mode
+
+The table is output **before any edit or any local test run**, and the run stops
+there for the user's go-ahead. Do not touch code, and do not start reproducing,
+until they answer. They may override any action — including "resolve it, don't fix
+it" on a thread, or "skip this one" on a failure.
+
+- Comment rows: the thread's ask, the recommended action, a one-line reason.
+- CI rows: the **failing spec or example by name** and its file, plus the failure's
+  first line verbatim. One row per failing test, not one per job — a job with nine
+  red examples is nine rows. Group under the job name when the list is long, but
+  never collapse it to a count.
 
 ## Hard rules
 
@@ -73,10 +95,12 @@ No items → report "nothing to fix" and stop.
 1. **Preflight.** Current branch matches the PR's `headRefName`. `git status` clean
    of changes you did not make. PR open. Wrong branch → stop and ask; never
    force-switch over user work. If the PR's branch lives in a worktree, work there.
-2. **Intake.** Build the item table.
-3. **Per item.** Reproduce (CI items) → confirm the expected red → minimal fix →
-   targeted test green → next item. One item at a time; batching fixes makes it
-   impossible to say which change resolved which thread.
+2. **Intake.** Build the item table, output it, stop for approval; resume with the
+   user's actions.
+3. **Per item.** `resolved` items need no edit — carry the reason to the report.
+   The rest: reproduce with `commands.test_one` (CI items) → confirm the expected
+   red → minimal fix → targeted test green → next item. One item at a time;
+   batching fixes makes it impossible to say which change resolved which thread.
 4. **Validate.** The full chain from
    `../implement/references/validation-standards.md`, relative to this skill
    directory — same order, same reporting, same contract-drift rule. Exact

@@ -149,13 +149,17 @@ Input: a `task` draft at `<paths.tasks>/<slug>.md`, already confirmed by the use
 Input: the `pr-fix` report — item table, `Files Changed`, validation results,
 pushback justifications.
 
-- **Commit** — every path in the report's `Files Changed`. Same manifest rule.
+- **Commit** — every path in the report's `Files Changed`. Same manifest rule. An
+  empty `Files Changed` is valid here: a run of `resolved`, `pushback` or `question`
+  items only touches threads. Skip commit and push, go straight to the replies.
 - **Push** — normally, to the PR's existing branch.
 - **PR** — never create one; a missing PR is a preflight failure. Then, per item in
   the report's table:
   - `fix` → reply on the thread with one line (what changed, in which file), then
     resolve the thread. On GitHub: `gh api graphql` with the `resolveReviewThread`
     mutation, thread id from `pullRequest.reviewThreads`.
+  - `resolved` → reply with the report's one-line reason (already fixed elsewhere,
+    stale, accepted nitpick), then resolve the thread. No commit is implied.
   - `pushback` → reply with the justification **verbatim** from the report. Do
     **not** resolve. The decision is human.
   - `question` → reply with the question verbatim. Do **not** resolve.
